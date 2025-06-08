@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.target=PanelManager
+comment1.params=frame
+comment1.target=PanelManager(javax.swing.JFrame)
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ PanelManager\r\n
+comment2.params=
+comment2.target=StartMenuPanel\ getStartMenu()
+comment3.params=
+comment3.target=void\ showStartMenu()
+comment4.params=
+comment4.target=void\ showGamePanel()
+numComments=5
