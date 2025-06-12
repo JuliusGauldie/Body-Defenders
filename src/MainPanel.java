@@ -1,14 +1,14 @@
 
 /**
- * Panel showing main game
+ * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 12/06/25
+ * @version 13/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-public class MainPanel extends JPanel
+public class MainPanel extends JPanel 
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
@@ -22,13 +22,18 @@ public class MainPanel extends JPanel
     // Manager
     PanelManager manager;
 
+    private int enemyXSpawn = 50;
+    private int enemyYSpawn = 50;
+
+    Enemies enemy;
+
     /**
      * Constructor for objects of class MainPanel
      */
     public MainPanel(PanelManager manager) 
     {
         this.manager = manager;
-        
+
         this.setLayout(new CardLayout());
 
         // Create layered pane
@@ -42,7 +47,7 @@ public class MainPanel extends JPanel
 
         // Create pause menu pane
         pausePanel = new PauseMenuPanel(this);
-        pausePanel.setBounds(0, 0, 400, 300); // Centered
+        pausePanel.setBounds(200, 100, 400, 300); // Centered
         pausePanel.setOpaque(true);
         pausePanel.setVisible(false); // Initially hidden
         layeredPane.add(pausePanel, JLayeredPane.PALETTE_LAYER); // On top
@@ -74,5 +79,13 @@ public class MainPanel extends JPanel
     {
         pausePanel.setVisible(false);
         manager.showStartMenu();
+    }
+
+    public void newWave()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            new Enemies(enemyXSpawn, enemyYSpawn);
+        }
     }
 }

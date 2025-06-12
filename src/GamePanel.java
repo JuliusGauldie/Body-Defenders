@@ -3,12 +3,12 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 12/06/25
+ * @version 13/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-public class GamePanel extends JPanel
+public class GamePanel extends JPanel implements KeyListener
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
@@ -30,6 +30,9 @@ public class GamePanel extends JPanel
     {
         this.main = main;
 
+        // Keyboard
+        addKeyListener(this); // Register KeyListener
+
         mainGameP = new MainGamePanel();
         infoP = new InfoPanel();
         detailP = new DetailPanel();
@@ -40,7 +43,6 @@ public class GamePanel extends JPanel
         //add(pauseButton);
         pauseButton.addActionListener(e -> showPauseMenu());
 
-        mainGameP.setBackground(Color.BLUE); 
         add(mainGameP, BorderLayout.CENTER);
 
         infoP.setBackground(Color.ORANGE); 
@@ -57,5 +59,24 @@ public class GamePanel extends JPanel
     void showPauseMenu()
     {
         main.showPauseMenu();
+    }
+
+    public void  keyTyped(KeyEvent e)
+    {
+
+    }
+
+    public void keyPressed(KeyEvent e)
+    {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+        {
+            main.showPauseMenu();
+            System.out.println("TEST");
+        }
+    }
+
+    public void keyReleased(KeyEvent e)
+    {
+
     }
 }

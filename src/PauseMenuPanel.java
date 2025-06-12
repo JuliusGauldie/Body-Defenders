@@ -3,7 +3,7 @@
  * Panel showing pause menu in game
  *
  * @author Julius Gauldie
- * @version 12/06/25
+ * @version 13/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -35,7 +35,7 @@ public class PauseMenuPanel extends JPanel
         add(unpauseButton);
         unpauseButton.addActionListener(e -> this.setVisible(false));
         
-        super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        super.setPreferredSize(new Dimension(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2));
         
         super.revalidate();
         super.repaint();
