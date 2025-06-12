@@ -8,5 +8,5 @@ comment2.target=StartMenuPanel\ getStartMenu()
 comment3.params=
 comment3.target=void\ showStartMenu()
 comment4.params=
-comment4.target=void\ showGamePanel()
+comment4.target=void\ showMainPanel()
 numComments=5

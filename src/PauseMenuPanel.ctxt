@@ -1,6 +1,6 @@
 #BlueJ class context
 comment0.target=PauseMenuPanel
-comment1.params=manager
-comment1.target=PauseMenuPanel(PanelManager)
+comment1.params=main
+comment1.target=PauseMenuPanel(MainPanel)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ PauseMenuPanel\r\n
 numComments=2

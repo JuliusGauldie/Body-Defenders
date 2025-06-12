@@ -8,20 +8,20 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-public class InfoPanel extends JPanel
+public class DetailPanel extends JPanel
 {
     // Size
-    public int CANVAS_WIDTH = 150; //Game Board widht/height
-    public int CANVAS_HEIGHT = 650;
+    public int CANVAS_WIDTH = 800; //Game Board widht/height
+    public int CANVAS_HEIGHT = 150;
 
     /**
-     * Constructor for objects of class InfoPanel
+     * Constructor for objects of class DetailPanel
      */
-    public InfoPanel() 
+    public DetailPanel() 
     {
         setLayout(new FlowLayout());  
-        
-        JLabel label = new JLabel("This is the info panel");
+
+        JLabel label = new JLabel("This is the detail panel");
         add(label);
         
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));

@@ -12,6 +12,10 @@ public class Main extends JFrame
 {
     //JPanels
     PanelManager manager = new PanelManager(this);
+    
+    // CONSTANTS
+    private int CANVAS_WIDTH = 800;
+    private int CANVAS_HEIGHT = 600;
 
     /**
      * Constructor for objects of class Main
@@ -21,7 +25,7 @@ public class Main extends JFrame
         setTitle("Tower Defense Game");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
-        setSize(800, 600);
+        setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         
         setContentPane(manager.getStartMenu());
 

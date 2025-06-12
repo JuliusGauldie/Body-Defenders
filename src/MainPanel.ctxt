@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.target=MainPanel
+comment1.params=manager
+comment1.target=MainPanel(PanelManager)
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ MainPanel\r\n
+comment2.params=
+comment2.target=void\ showPauseMenu()
+comment3.params=
+comment3.target=void\ hidePauseMenu()
+comment4.params=
+comment4.target=void\ showStartMenu()
+numComments=5

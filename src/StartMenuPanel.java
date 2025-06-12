@@ -3,7 +3,7 @@
  * Panel showing start menu on startup
  *
  * @author Julius Gauldie
- * @version 09/06/25
+ * @version 12/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -11,20 +11,25 @@ import javax.swing.*;
 public class StartMenuPanel extends JPanel
 {
     // Size
-    public int CANVAS_WIDTH = 1920 / 2; //Game Board widht/height
-    public int CANVAS_HEIGHT = 1080 / 2;
+    public int CANVAS_WIDTH = 800; //Game Board widht/height
+    public int CANVAS_HEIGHT = 600;
 
     /**
      * Constructor for objects of class StartMenuPanel
      */
     public StartMenuPanel(PanelManager manager) 
     {
-        setLayout(null);
+        setLayout(new FlowLayout());
+        
         JButton startButton = new JButton("Start Game");
-
-        startButton.setBounds(300, 250, 200, 50);
         add(startButton);
-
-        startButton.addActionListener(e -> manager.showGamePanel());
+        startButton.addActionListener(e -> manager.showMainPanel());
+        
+        JButton exitButton = new JButton("Quit Game");
+        add(exitButton);
+        exitButton.addActionListener(e -> System.exit(0));
+        
+        super.revalidate();
+        super.repaint();
     }
 }

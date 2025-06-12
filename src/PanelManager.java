@@ -3,17 +3,16 @@
  * Manages panel player sees
  *
  * @author Julius Gauldie
- * @version 09/06/25
+ * @version 12/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 public class PanelManager
 {
-    private JFrame frame;
+    public JFrame frame;
     private StartMenuPanel startPanel;
-    private PauseMenuPanel pausePanel;
-    private MainBoardPanel gamePanel;
+    private MainPanel mainPanel;
     
     /**
      * Constructor for objects of class PanelManager
@@ -22,7 +21,7 @@ public class PanelManager
     {
         this.frame = frame;
         startPanel = new StartMenuPanel(this);
-        gamePanel = new MainBoardPanel(this);
+        mainPanel = new MainPanel(this);
     }
     
     public StartMenuPanel getStartMenu()
@@ -36,9 +35,9 @@ public class PanelManager
         frame.revalidate();
     }
     
-    public void showGamePanel()
+    public void showMainPanel()
     {
-        frame.setContentPane(gamePanel);
+        frame.setContentPane(mainPanel);
         frame.revalidate();
     }
 }
