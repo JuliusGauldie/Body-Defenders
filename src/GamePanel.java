@@ -3,11 +3,12 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 13/06/25
+ * @version 16/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
 public class GamePanel extends JPanel implements KeyListener
 {
     // Size
@@ -22,7 +23,7 @@ public class GamePanel extends JPanel implements KeyListener
     private MainGamePanel mainGameP;
     private InfoPanel infoP;
     private DetailPanel detailP;
-
+    
     /**
      * Constructor for objects of class MainBoardPanel
      */

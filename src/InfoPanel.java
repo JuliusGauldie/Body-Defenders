@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 12/06/25
+ * @version 16/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -19,11 +19,29 @@ public class InfoPanel extends JPanel
      */
     public InfoPanel() 
     {
-        setLayout(new FlowLayout());  
-        
-        JLabel label = new JLabel("This is the info panel");
-        add(label);
+        setLayout(new GridLayout(4, 1));  
         
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        
+        JLabel currencyLabel = new JLabel("Money: ");
+        currencyLabel.setPreferredSize(new Dimension (150, 30));
+        super.add(currencyLabel);
+        
+        JLabel livesLabel = new JLabel("Lives: ");
+        super.add(livesLabel);
+        
+        JPanel towerPanel = new JPanel();
+        towerPanel.setLayout(new GridLayout(4, 2, 10, 10));
+        towerPanel.setPreferredSize(new Dimension (150, 200));
+        super.add(towerPanel);
+        
+        JButton newWaveButton = new JButton("New Wave");
+        newWaveButton.addActionListener(e -> newWave());
+        super.add(newWaveButton);
+    }
+    
+    public void newWave()
+    {
+        
     }
 }

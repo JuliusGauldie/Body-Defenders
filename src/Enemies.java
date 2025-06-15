@@ -16,13 +16,13 @@ public class Enemies extends JFrame
     private int damage = 0;
     private int speed = 2;
 
-    private int xLocation;
-    private int yLocation;
+    public int xLocation;
+    public int yLocation;
 
     private boolean alive = true;
 
     // Images
-    ImageIcon image = new ImageIcon("../assets/robot.png");
+    ImageIcon image = new ImageIcon("../assets/enemy.png");
 
     /**
      * Constructor for objects of class Enemies
@@ -31,16 +31,9 @@ public class Enemies extends JFrame
     {
         this.xLocation = xSpawn;
         this.yLocation = ySpawn;
-
-        while (alive)
-        {
-            update();
-
-            try {
-                // to sleep 10 seconds
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {}
-        }
+        
+        repaint();
+        super.repaint();
     }
 
     public void update()
@@ -52,16 +45,7 @@ public class Enemies extends JFrame
     public void paint (Graphics g)
     {
         super.paint(g);
-
-        if (offScreenImage == null)
-            offScreenImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2 = (Graphics2D) offScreenImage.getGraphics();
-        g2.setColor(getBackground());
-        g2.fillRect(0, 0, getWidth(), getHeight());
-
-        image.paintIcon(this, g2, xLocation, yLocation); 
-
-        g.drawImage(offScreenImage, 0, 0, null);
+        
+        image.paintIcon(this, g, xLocation, yLocation);
     }
 }

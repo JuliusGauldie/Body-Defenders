@@ -3,7 +3,7 @@
  * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 13/06/25
+ * @version 16/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,10 +22,6 @@ public class MainPanel extends JPanel
     // Manager
     PanelManager manager;
 
-    private int enemyXSpawn = 50;
-    private int enemyYSpawn = 50;
-
-    Enemies enemy;
 
     /**
      * Constructor for objects of class MainPanel
@@ -81,11 +77,4 @@ public class MainPanel extends JPanel
         manager.showStartMenu();
     }
 
-    public void newWave()
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            new Enemies(enemyXSpawn, enemyYSpawn);
-        }
-    }
 }

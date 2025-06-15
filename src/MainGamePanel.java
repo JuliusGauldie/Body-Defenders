@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 13/06/25
+ * @version 16/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -12,6 +12,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.util.*;
+import java.util.ArrayList;
+
 public class MainGamePanel extends JPanel
 {
     // Size
@@ -30,6 +33,10 @@ public class MainGamePanel extends JPanel
         }
     }
 
+    GameManager gManager;
+
+    ArrayList<Enemies> enemy = new ArrayList<>();
+
     /**
      * Constructor for objects of class MainGamePanel
      */
@@ -43,5 +50,19 @@ public class MainGamePanel extends JPanel
         imageLabel.setIcon(new ImageIcon(mapImage));
         imageLabel.setLayout(new BorderLayout());
         super.add(imageLabel);
+
+        super.repaint();
+        
+        enemy.add(new Enemies(10, 235));
+    }
+
+    public void paint (Graphics g)
+    {
+        super.paint(g);
+        
+        for (Enemies a : enemy)
+        {
+            a.image.paintIcon(this, g, a.xLocation, a.yLocation);
+        }
     }
 }

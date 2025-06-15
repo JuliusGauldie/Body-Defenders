@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 13/06/25
+ * @version 16/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -24,9 +24,9 @@ public class GameManager
 
     }
 
-    public void newWave()
+    public void newWave(int amountOfEnemies)
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < amountOfEnemies; i++)
         {
             new Enemies(enemyXSpawn, enemyYSpawn);
         }

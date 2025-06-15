@@ -3,4 +3,6 @@ comment0.target=MainGamePanel
 comment1.params=
 comment1.target=MainGamePanel()
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ MainGamePanel\r\n
-numComments=2
+comment2.params=g
+comment2.target=void\ paint(java.awt.Graphics)
+numComments=3

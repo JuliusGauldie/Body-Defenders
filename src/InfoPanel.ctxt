@@ -3,4 +3,6 @@ comment0.target=InfoPanel
 comment1.params=
 comment1.target=InfoPanel()
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ InfoPanel\r\n
-numComments=2
+comment2.params=
+comment2.target=void\ newWave()
+numComments=3

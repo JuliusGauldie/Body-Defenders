@@ -9,6 +9,4 @@ comment3.params=
 comment3.target=void\ hidePauseMenu()
 comment4.params=
 comment4.target=void\ showStartMenu()
-comment5.params=
-comment5.target=void\ newWave()
-numComments=6
+numComments=5
