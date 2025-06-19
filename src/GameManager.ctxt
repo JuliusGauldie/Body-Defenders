@@ -1,8 +1,0 @@
-#BlueJ class context
-comment0.target=GameManager
-comment1.params=
-comment1.target=GameManager()
-comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ GameManager\r\n
-comment2.params=amountOfEnemies
-comment2.target=void\ newWave(int)
-numComments=3

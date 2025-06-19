@@ -1,10 +1,10 @@
 #BlueJ class context
 comment0.target=Enemies
-comment1.params=xSpawn\ ySpawn
-comment1.target=Enemies(int,\ int)
+comment1.params=path
+comment1.target=Enemies(java.util.List)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ Enemies\r\n
 comment2.params=
 comment2.target=void\ update()
-comment3.params=g
-comment3.target=void\ paint(java.awt.Graphics)
+comment3.params=damage
+comment3.target=void\ hit(int)
 numComments=4

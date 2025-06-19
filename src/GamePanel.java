@@ -3,12 +3,11 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 16/06/25
+ * @version 19/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
 public class GamePanel extends JPanel implements KeyListener
 {
     // Size
@@ -23,7 +22,7 @@ public class GamePanel extends JPanel implements KeyListener
     private MainGamePanel mainGameP;
     private InfoPanel infoP;
     private DetailPanel detailP;
-    
+
     /**
      * Constructor for objects of class MainBoardPanel
      */
@@ -35,7 +34,7 @@ public class GamePanel extends JPanel implements KeyListener
         addKeyListener(this); // Register KeyListener
 
         mainGameP = new MainGamePanel();
-        infoP = new InfoPanel();
+        infoP = new InfoPanel(mainGameP);
         detailP = new DetailPanel();
 
         setLayout(new BorderLayout());
@@ -46,7 +45,6 @@ public class GamePanel extends JPanel implements KeyListener
 
         add(mainGameP, BorderLayout.CENTER);
 
-        infoP.setBackground(Color.ORANGE); 
         add(infoP, BorderLayout.EAST);
 
         detailP.setBackground(Color.RED); 
@@ -55,6 +53,7 @@ public class GamePanel extends JPanel implements KeyListener
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         super.revalidate();
         super.repaint();
+
     }
 
     void showPauseMenu()
