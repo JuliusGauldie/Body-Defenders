@@ -3,14 +3,14 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 19/06/25
+ * @version 23/06/25
  */
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.awt.Point;
 import javax.swing.ImageIcon;
 
-public class Enemies
+public class Enemy
 {
     public int xLocation, yLocation;
     private int currentWaypoint = 0;
@@ -20,7 +20,7 @@ public class Enemies
     private int health = 100;
     private int damage = 0;
 
-    public boolean alive = true;
+    boolean isAlive() { return health > 0; }
 
     // Images
     ImageIcon image = new ImageIcon("../assets/enemy.png");
@@ -28,7 +28,7 @@ public class Enemies
     /**
      * Constructor for objects of class Enemies
      */
-    public Enemies(List<Point> path)
+    public Enemy(List<Point> path)
     {
         this.path = path;
 
@@ -61,8 +61,5 @@ public class Enemies
     public void hit(int damage)
     {
         health -= damage;
-
-        if (health < 0)
-            alive = false;
     }
 }

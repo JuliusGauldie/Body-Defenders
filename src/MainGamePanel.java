@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 19/06/25
+ * @version 23/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -32,8 +32,11 @@ public class MainGamePanel extends JPanel
         }
     }
 
-    ArrayList<Enemies> enemy = new ArrayList<>();
-    java.util.List<Point> path = new ArrayList<>();
+    ArrayList<Enemy> enemies = new ArrayList<>();
+    ArrayList<Tower> towers = new ArrayList<>();
+    ArrayList<Projectile> projectiles = new ArrayList<>();
+
+    ArrayList<Point> path = new ArrayList<>();
 
     /**
      * Constructor for objects of class MainGamePanel
@@ -68,15 +71,37 @@ public class MainGamePanel extends JPanel
             Point(650, 190));
 
         java.util.Timer timer = new java.util.Timer();
-        timer.scheduleAtFixedRate(new UpdateTask(), 0, 10);
+        timer.scheduleAtFixedRate(new UpdateTask(), 0, 5); // Update at 60fps
+
+        towers.add(new Tower(this, 200, 200));
     }
 
     class UpdateTask extends TimerTask 
     {
         public void run() {
-            for (Enemies a : enemy)
+            for (Tower t : towers)
             {
-                a.update();
+                t.update(enemies, projectiles);
+            }
+
+            Iterator<Projectile> iter = projectiles.iterator();
+            while (iter.hasNext())
+            {
+                Projectile p = iter.next();
+                p.update();
+
+                if (!p.isActive())
+                    iter.remove();
+            }
+
+            Iterator<Enemy> enemyIter = enemies.iterator();
+            while (enemyIter.hasNext())
+            {
+                Enemy e = enemyIter.next();
+                e.update();
+
+                if (!e.isAlive())
+                    enemyIter.remove();
             }
 
             repaint();
@@ -85,7 +110,7 @@ public class MainGamePanel extends JPanel
 
     public void newWave()
     {
-        enemy.add(new Enemies(path));
+        enemies.add(new Enemy(path));
 
         repaint();
     }
@@ -94,9 +119,19 @@ public class MainGamePanel extends JPanel
     {
         super.paint(g);
 
-        for (Enemies a : enemy)
+        for (Enemy a : enemies)
         {
             a.image.paintIcon(this, g, a.xLocation, a.yLocation);
+        }
+
+        for (Tower t : towers)
+        {
+            t.image.paintIcon(this, g, t.xLocation, t.yLocation);
+        }
+
+        for (Projectile p : projectiles)
+        {
+            p.image.paintIcon(this, g, p.xLocation, p.yLocation);
         }
     }
 }
