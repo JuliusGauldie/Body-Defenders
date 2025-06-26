@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 26/06/25
+ * @version 27/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,7 +22,7 @@ public class MainGamePanel extends JPanel implements MouseListener
 
     // Images
     private static BufferedImage mapImage;
-    private JLabel selectedLabel = new JLabel();
+    private ImageIcon selectedTowerImage;
 
     // Try to assign images
     static {
@@ -41,9 +41,12 @@ public class MainGamePanel extends JPanel implements MouseListener
 
     // Towers
     private boolean towerSelected = false;
-    
+    private int towerSelectedRange = 0;
+
     // Boolean
     private boolean mouseInPanel = false;
+
+    private int mouseX, mouseY;
 
     /**
      * Constructor for objects of class MainGamePanel
@@ -53,18 +56,15 @@ public class MainGamePanel extends JPanel implements MouseListener
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
-            
-        super.setLayout(new OverlayLayout(this));
-        
-        selectedLabel.setVisible(false);
-        super.add(selectedLabel);
 
+        // Add map
         JLabel imageLabel = new JLabel();
         imageLabel.setIcon(new ImageIcon(mapImage));
         super.add(imageLabel);
 
         super.repaint();
 
+        // Corners on map 
         path.add(new Point(10, 235));
         path.add(new Point(90, 235));
         path.add(new Point(90, 100));
@@ -74,38 +74,29 @@ public class MainGamePanel extends JPanel implements MouseListener
         path.add(new Point(400, 190));
         path.add(new Point(650, 190));
 
+        // Works ass update function (runs 60 times a second - 60fps)
         java.util.Timer timer = new java.util.Timer();
         timer.scheduleAtFixedRate(new UpdateTask(), 0, 1000 / 60); // Update at 60fps
 
         // Add a MouseMotionListener to the frame
         addMouseMotionListener(new MouseMotionAdapter() 
-        {
+            {
                 @Override
                 public void mouseMoved(MouseEvent e) 
                 {
                     // Get current cursor coordinates
-                    int x = e.getX();
-                    int y = e.getY();
-
-                    // Set the image label's location to the cursor's position
-                    if (towerSelected && mouseInPanel)
-                    {
-                        selectedLabel.setVisible(true);
-                        selectedLabel.setLocation(x, y);
-                    }
-
-                    if (x == 0 && y == 0)
-                        selectedLabel.setLocation(100, 100);
+                    mouseX = e.getX();
+                    mouseY = e.getY();
                 }
-        });
+            });
     }
 
-    class UpdateTask extends TimerTask // Runs every 5 second
+    class UpdateTask extends TimerTask // Runs 60 times a second
     {
         public void run() {
             for (Tower t : towers)
             {
-                t.update(enemies, projectiles);
+                t.update();
             }
 
             Iterator<Projectile> iter = projectiles.iterator();
@@ -127,9 +118,6 @@ public class MainGamePanel extends JPanel implements MouseListener
                 if (!e.isAlive())
                     enemyIter.remove();
             }
-            
-            if (!towerSelected)
-                selectedLabel.setVisible(false);
 
             repaint();
         }
@@ -142,11 +130,12 @@ public class MainGamePanel extends JPanel implements MouseListener
         repaint();
     }
 
-    public void towerSelected(boolean selected, ImageIcon selectedImage)
+    public void towerSelected(boolean selected, ImageIcon selectedImage, int range)
     {
         towerSelected = selected;
+        selectedTowerImage = selectedImage;
 
-        selectedLabel.setIcon(selectedImage);
+        this.towerSelectedRange = range;
     }
 
     public void mouseClicked(MouseEvent e)
@@ -157,10 +146,9 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         if (towerSelected)
         {
-            towers.add(new Tower(this, x, y));
+            towers.add(new Tower(this, x - (selectedTowerImage.getIconWidth() / 2), y - (selectedTowerImage.getIconHeight() / 2)));
 
             towerSelected = false;
-            selectedLabel.setVisible(false);
         }
 
         super.repaint();
@@ -169,7 +157,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     public void mouseEntered(MouseEvent e)
     {
         this.requestFocus();
-        
+
         mouseInPanel = true;
     }
 
@@ -183,19 +171,29 @@ public class MainGamePanel extends JPanel implements MouseListener
     {  
         super.paint(g);
 
-        for (Enemy a : enemies)
+        if (towerSelected && mouseInPanel)
         {
-            a.image.paintIcon(this, g, a.xLocation, a.yLocation);
+            g.setColor(new Color(160, 160, 160, 128));
+            g.fillOval(mouseX - (towerSelectedRange), mouseY - (towerSelectedRange), towerSelectedRange * 2, towerSelectedRange * 2);
+
+            selectedTowerImage.paintIcon(this, g, mouseX - (selectedTowerImage.getIconWidth() / 2), mouseY - (selectedTowerImage.getIconHeight() / 2));
+        }
+
+        for (Projectile p : projectiles)
+        {
+            if (p.active)
+                p.image.paintIcon(this, g, p.xLocation, p.yLocation);
+        }
+
+        for (Enemy e : enemies)
+        {
+            if (e.isAlive())
+                e.image.paintIcon(this, g, e.xLocation, e.yLocation);
         }
 
         for (Tower t : towers)
         {
             t.image.paintIcon(this, g, t.xLocation, t.yLocation);
-        }
-
-        for (Projectile p : projectiles)
-        {
-            p.image.paintIcon(this, g, p.xLocation, p.yLocation);
         }
     }
 }

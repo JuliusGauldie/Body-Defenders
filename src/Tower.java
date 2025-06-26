@@ -5,16 +5,20 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 26/06/25
+ * @version 27/06/25
  */
 public class Tower
 {
-    // instance variables 
+    // Location
     public int xLocation, yLocation;
-    int damage = 25;
-    float range = 150f;
+    
+    // Tower stats
+    private int damage = 50;
+    public int range = 90;
     float fireRate = 0.5f;
-    long lastShotTime;
+    
+    // Time
+    private long lastShotTime;
 
     MainGamePanel main;
 
@@ -32,17 +36,18 @@ public class Tower
         this.yLocation = y;
     }
 
-    public void update(List <Enemy> enemy, List<Projectile> projectiles)
+    public void update()
     {
-        Enemy target = findTarget(main.enemies);
+        Enemy target = findTarget();
 
         if (target != null && canFire())
         {
-            fireAt(target, projectiles);
+            fireAt(target);
         }
+
     }
 
-    private Enemy findTarget(List <Enemy> enemy)
+    private Enemy findTarget()
     {
         for (Enemy e : main.enemies)
         {
@@ -55,10 +60,10 @@ public class Tower
         return null;
     }
 
-    private boolean inRange(Enemy enemies)
+    private boolean inRange(Enemy enemy)
     {
-        float dx = enemies.xLocation - xLocation;
-        float dy = enemies.yLocation - yLocation;
+        float dx = enemy.xLocation - xLocation;
+        float dy = enemy.yLocation - yLocation;
 
         return Math.sqrt(dx * dx + dy * dy) <= range;
     }
@@ -67,11 +72,11 @@ public class Tower
     {
         long currentTime = System.currentTimeMillis();
         long delay = (long)(1000 / fireRate); // delay between shots in milliseconds
-        
+
         return (currentTime - lastShotTime) >= delay;
     }
 
-    private void fireAt(Enemy enemy, List<Projectile> projectiles)
+    private void fireAt(Enemy enemy)
     {
         lastShotTime = System.currentTimeMillis();
         main.projectiles.add(new Projectile(xLocation, yLocation, enemy, this.damage));

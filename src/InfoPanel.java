@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 26/06/25
+ * @version 27/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -62,11 +62,11 @@ public class InfoPanel extends JPanel
     
     private void towerSelected()
     {
-        mainPanel.towerSelected(true, selectedImage);
+        mainPanel.towerSelected(true, selectedImage, 150);
     }
     
     private void unSelected()
     {
-        mainPanel.towerSelected(false, null);
+        mainPanel.towerSelected(false, null, 150);
     }
 }

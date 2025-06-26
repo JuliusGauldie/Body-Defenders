@@ -4,14 +4,14 @@ import javax.swing.ImageIcon;
  * Write a description of class Projectile here.
  *
  * @author Julius Gauldie
- * @version 26/06/25
+ * @version 27/06/25
  */
 public class Projectile
 {
     // instance variables 
     public int xLocation, yLocation;
     int damage;
-    float speed = 10f;
+    float speed = 15f;
     Enemy target;
     
     boolean active = true;
@@ -36,6 +36,7 @@ public class Projectile
         if (!target.isAlive() || !active)
         {
             active = false;
+            
             return;
         }
         
@@ -43,10 +44,11 @@ public class Projectile
         float dy = target.yLocation - yLocation;
         float distance = (float) Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 3f)
+        if (distance < 10f)
         {
             target.hit(damage);
             active = false;
+            
             return;
         }
         
