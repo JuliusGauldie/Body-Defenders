@@ -22,7 +22,6 @@ public class MainPanel extends JPanel
     // Manager
     PanelManager manager;
 
-
     /**
      * Constructor for objects of class MainPanel
      */

@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 23/06/25
+ * @version 26/06/25
  */
 public class Tower
 {

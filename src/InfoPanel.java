@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 19/06/25
+ * @version 26/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -15,6 +15,9 @@ public class InfoPanel extends JPanel
     public int CANVAS_HEIGHT = 650;
     
     MainGamePanel mainPanel;
+    
+    private Icon tower1Icon = new ImageIcon("../assets/tower.png");
+    ImageIcon selectedImage = new ImageIcon("../assets/towerSelected.png");
 
     /**
      * Constructor for objects of class InfoPanel
@@ -26,18 +29,25 @@ public class InfoPanel extends JPanel
         mainPanel = panel;
         
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        this.setFocusable(false);
         
         JLabel currencyLabel = new JLabel("Money: ");
-        currencyLabel.setMaximumSize(new Dimension (150, 50));
+        currencyLabel.setPreferredSize(new Dimension (150, 50));
         super.add(currencyLabel);
         
         JLabel livesLabel = new JLabel("Lives: ");
-        livesLabel.setMaximumSize(new Dimension (150, 50));
+        livesLabel.setPreferredSize(new Dimension (150, 50));
         super.add(livesLabel);
         
         JPanel towerPanel = new JPanel();
         towerPanel.setLayout(new GridLayout(4, 2, 10, 10));
         towerPanel.setPreferredSize(new Dimension (150, 450));
+        
+        JButton tower1Button = new JButton(tower1Icon);
+        tower1Button.addActionListener(e -> towerSelected());
+        tower1Button.setPreferredSize(new Dimension (150, 50));
+        towerPanel.add(tower1Button);
+        
         super.add(towerPanel);
         
         JButton newWaveButton = new JButton("New Wave");
@@ -48,5 +58,15 @@ public class InfoPanel extends JPanel
     public void newWave()
     {
         mainPanel.newWave();
+    }
+    
+    private void towerSelected()
+    {
+        mainPanel.towerSelected(true, selectedImage);
+    }
+    
+    private void unSelected()
+    {
+        mainPanel.towerSelected(false, null);
     }
 }

@@ -1,6 +1,6 @@
 #BlueJ class context
 comment0.target=Projectile
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Projectile\ here.\r\n\r\n\ @author\ Julius\ Gauldie\r\n\ @version\ 23/06/25\r\n
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ Projectile\ here.\r\n\r\n\ @author\ Julius\ Gauldie\r\n\ @version\ 26/06/25\r\n
 comment1.params=x\ y\ target\ damage
 comment1.target=Projectile(int,\ int,\ Enemy,\ int)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ Projectile\r\n

@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 19/06/25
+ * @version 126/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -68,11 +68,7 @@ public class GamePanel extends JPanel implements KeyListener
 
     public void keyPressed(KeyEvent e)
     {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-        {
-            main.showPauseMenu();
             System.out.println("TEST");
-        }
     }
 
     public void keyReleased(KeyEvent e)
