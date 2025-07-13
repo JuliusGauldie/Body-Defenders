@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 27/06/25
+ * @version 14/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -18,12 +18,23 @@ public class InfoPanel extends JPanel
     
     private Icon tower1Icon = new ImageIcon("../assets/tower.png");
     ImageIcon selectedImage = new ImageIcon("../assets/towerSelected.png");
-
+    
+    // JLabels in infopanel
+    JLabel livesLabel;
+    JLabel currencyLabel;
+    
+    // Charachter stats
+    private int money = 300;
+    
+    GamePanel main;
+    
     /**
      * Constructor for objects of class InfoPanel
      */
-    public InfoPanel(MainGamePanel panel) 
+    public InfoPanel(GamePanel main, MainGamePanel panel) 
     {
+        this.main = main;
+        
         setLayout(new GridLayout(4, 1));  
         
         mainPanel = panel;
@@ -31,11 +42,11 @@ public class InfoPanel extends JPanel
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         this.setFocusable(false);
         
-        JLabel currencyLabel = new JLabel("Money: ");
+        currencyLabel = new JLabel("Money: 300");
         currencyLabel.setPreferredSize(new Dimension (150, 50));
         super.add(currencyLabel);
         
-        JLabel livesLabel = new JLabel("Lives: ");
+        livesLabel = new JLabel("Lives: 5");
         livesLabel.setPreferredSize(new Dimension (150, 50));
         super.add(livesLabel);
         
@@ -58,15 +69,32 @@ public class InfoPanel extends JPanel
     public void newWave()
     {
         mainPanel.newWave();
+        
+        main.gainMoney(25);
     }
     
     private void towerSelected()
     {
-        mainPanel.towerSelected(true, selectedImage, 150);
+        if (main.getCurrentMoney() >= 50)
+        {
+            mainPanel.towerSelected(true, selectedImage, 150, 100);
+        }
     }
     
     private void unSelected()
     {
-        mainPanel.towerSelected(false, null, 150);
+        mainPanel.towerSelected(false, null, 150, 100);
+    }
+    
+    public void setLives(String lives)
+    {
+        livesLabel.setText("Lives: " + lives);
+    }
+    
+    public void setMoney(int money)
+    {
+        currencyLabel.setText("Money: " + String.valueOf(money));
+        
+        this.money = money;
     }
 }

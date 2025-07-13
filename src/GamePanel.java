@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 126/06/25
+ * @version 14/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,6 +22,10 @@ public class GamePanel extends JPanel implements KeyListener
     private MainGamePanel mainGameP;
     private InfoPanel infoP;
     private DetailPanel detailP;
+    
+    // Charachter stats
+    private int lives = 5;
+    private int money = 300;
 
     /**
      * Constructor for objects of class MainBoardPanel
@@ -33,8 +37,8 @@ public class GamePanel extends JPanel implements KeyListener
         // Keyboard
         addKeyListener(this); // Register KeyListener
 
-        mainGameP = new MainGamePanel();
-        infoP = new InfoPanel(mainGameP);
+        mainGameP = new MainGamePanel(this);
+        infoP = new InfoPanel(this, mainGameP);
         detailP = new DetailPanel();
 
         setLayout(new BorderLayout());
@@ -74,5 +78,31 @@ public class GamePanel extends JPanel implements KeyListener
     public void keyReleased(KeyEvent e)
     {
 
+    }
+       
+    public void loseLife()
+    {
+        this.lives--;
+        
+        infoP.setLives(String.valueOf(lives));
+    }
+    
+    public int getCurrentMoney()
+    {
+        return this.money;
+    }
+    
+    public void spendMoney(int spentMoney)
+    {
+        this.money -= spentMoney;
+        
+        infoP.setMoney(money);
+    }
+    
+    public void gainMoney(int gainedMoney)
+    {
+        this.money += gainedMoney;
+        
+       infoP.setMoney(money);
     }
 }

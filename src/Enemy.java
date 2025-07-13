@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 23/06/25
+ * @version 14/07/25
  */
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -21,6 +21,8 @@ public class Enemy
     private int damage = 0;
 
     boolean isAlive() { return health > 0; }
+    
+    boolean madeToEnd() { return currentWaypoint >= path.size(); }
 
     // Images
     ImageIcon image = new ImageIcon("../assets/enemy.png");

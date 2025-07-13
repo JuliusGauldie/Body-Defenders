@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 27/06/25
+ * @version 14/07/25
  */
 public class Tower
 {
@@ -16,6 +16,9 @@ public class Tower
     private int damage = 50;
     public int range = 90;
     float fireRate = 0.5f;
+    
+    // Tower economic stats
+    private int towerCost = 100;
     
     // Time
     private long lastShotTime;

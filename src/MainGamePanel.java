@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 27/06/25
+ * @version 14/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -42,17 +42,22 @@ public class MainGamePanel extends JPanel implements MouseListener
     // Towers
     private boolean towerSelected = false;
     private int towerSelectedRange = 0;
+    private int towerSelectedCost;
 
     // Boolean
     private boolean mouseInPanel = false;
 
     private int mouseX, mouseY;
+    
+    private GamePanel panel;
 
     /**
      * Constructor for objects of class MainGamePanel
      */
-    public MainGamePanel() 
+    public MainGamePanel(GamePanel panel) 
     { 
+        this.panel = panel;
+        
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
@@ -74,7 +79,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         path.add(new Point(400, 190));
         path.add(new Point(650, 190));
 
-        // Works ass update function (runs 60 times a second - 60fps)
+        // Works as update function (runs 60 times a second - 60fps)
         java.util.Timer timer = new java.util.Timer();
         timer.scheduleAtFixedRate(new UpdateTask(), 0, 1000 / 60); // Update at 60fps
 
@@ -117,6 +122,12 @@ public class MainGamePanel extends JPanel implements MouseListener
 
                 if (!e.isAlive())
                     enemyIter.remove();
+                else if (e.madeToEnd())
+                {
+                    panel.loseLife();
+                    
+                    enemyIter.remove();
+                }
             }
 
             repaint();
@@ -130,11 +141,12 @@ public class MainGamePanel extends JPanel implements MouseListener
         repaint();
     }
 
-    public void towerSelected(boolean selected, ImageIcon selectedImage, int range)
+    public void towerSelected(boolean selected, ImageIcon selectedImage, int range, int cost)
     {
         towerSelected = selected;
         selectedTowerImage = selectedImage;
-
+        
+        this.towerSelectedCost = cost;
         this.towerSelectedRange = range;
     }
 
@@ -146,7 +158,12 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         if (towerSelected)
         {
-            towers.add(new Tower(this, x - (selectedTowerImage.getIconWidth() / 2), y - (selectedTowerImage.getIconHeight() / 2)));
+            if (e.getButton() == MouseEvent.BUTTON1) // If left click
+            {
+                towers.add(new Tower(this, x - (selectedTowerImage.getIconWidth() / 2), y - (selectedTowerImage.getIconHeight() / 2)));
+                
+                panel.spendMoney(towerSelectedCost);
+            }  
 
             towerSelected = false;
         }
@@ -186,7 +203,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         }
 
         for (Enemy e : enemies)
-        {
+        {   
             if (e.isAlive())
                 e.image.paintIcon(this, g, e.xLocation, e.yLocation);
         }
@@ -195,5 +212,10 @@ public class MainGamePanel extends JPanel implements MouseListener
         {
             t.image.paintIcon(this, g, t.xLocation, t.yLocation);
         }
+    }
+    
+    private void towerSelected (Tower tower)
+    {
+        
     }
 }

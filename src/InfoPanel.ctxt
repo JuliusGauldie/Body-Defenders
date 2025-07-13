@@ -1,7 +1,7 @@
 #BlueJ class context
 comment0.target=InfoPanel
-comment1.params=panel
-comment1.target=InfoPanel(MainGamePanel)
+comment1.params=main\ panel
+comment1.target=InfoPanel(GamePanel,\ MainGamePanel)
 comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ InfoPanel\r\n
 comment2.params=
 comment2.target=void\ newWave()
@@ -9,4 +9,8 @@ comment3.params=
 comment3.target=void\ towerSelected()
 comment4.params=
 comment4.target=void\ unSelected()
-numComments=5
+comment5.params=lives
+comment5.target=void\ setLives(java.lang.String)
+comment6.params=money
+comment6.target=void\ setMoney(int)
+numComments=7
