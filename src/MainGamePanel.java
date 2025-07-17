@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 14/07/25
+ * @version 17/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -33,14 +33,17 @@ public class MainGamePanel extends JPanel implements MouseListener
         }
     }
 
+    //
     ArrayList<Enemy> enemies = new ArrayList<>();
     ArrayList<Tower> towers = new ArrayList<>();
     ArrayList<Projectile> projectiles = new ArrayList<>();
 
+    // Point arrays
     ArrayList<Point> path = new ArrayList<>();
+    ArrayList<Point> places = new ArrayList<>();
 
     // Towers
-    private boolean towerSelected = false;
+    private Tower selectedTower = null;
     private int towerSelectedRange = 0;
     private int towerSelectedCost;
 
@@ -48,7 +51,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     private boolean mouseInPanel = false;
 
     private int mouseX, mouseY;
-    
+
     private GamePanel panel;
 
     /**
@@ -57,7 +60,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     public MainGamePanel(GamePanel panel) 
     { 
         this.panel = panel;
-        
+
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
@@ -69,7 +72,7 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         super.repaint();
 
-        // Corners on map 
+        // Corners on map for enemies
         path.add(new Point(10, 235));
         path.add(new Point(90, 235));
         path.add(new Point(90, 100));
@@ -79,29 +82,26 @@ public class MainGamePanel extends JPanel implements MouseListener
         path.add(new Point(400, 190));
         path.add(new Point(650, 190));
 
+        // Points for player to place towers
+        createTower(100, 300);
+        createTower(100, 48);
+        createTower(250, 48);
+        createTower(300, 350);
+        createTower(500, 350);
+
         // Works as update function (runs 60 times a second - 60fps)
         java.util.Timer timer = new java.util.Timer();
         timer.scheduleAtFixedRate(new UpdateTask(), 0, 1000 / 60); // Update at 60fps
-
-        // Add a MouseMotionListener to the frame
-        addMouseMotionListener(new MouseMotionAdapter() 
-            {
-                @Override
-                public void mouseMoved(MouseEvent e) 
-                {
-                    // Get current cursor coordinates
-                    mouseX = e.getX();
-                    mouseY = e.getY();
-                }
-            });
     }
 
     class UpdateTask extends TimerTask // Runs 60 times a second
     {
-        public void run() {
+        public void run() 
+        {
             for (Tower t : towers)
             {
-                t.update();
+                if (t.isBuilt())
+                    t.update();
             }
 
             Iterator<Projectile> iter = projectiles.iterator();
@@ -125,7 +125,7 @@ public class MainGamePanel extends JPanel implements MouseListener
                 else if (e.madeToEnd())
                 {
                     panel.loseLife();
-                    
+
                     enemyIter.remove();
                 }
             }
@@ -141,33 +141,31 @@ public class MainGamePanel extends JPanel implements MouseListener
         repaint();
     }
 
-    public void towerSelected(boolean selected, ImageIcon selectedImage, int range, int cost)
-    {
-        towerSelected = selected;
-        selectedTowerImage = selectedImage;
-        
-        this.towerSelectedCost = cost;
-        this.towerSelectedRange = range;
-    }
-
     public void mouseClicked(MouseEvent e)
     {
         // Get current cursor coordinates
         int x = e.getX();
         int y = e.getY();
 
-        if (towerSelected)
+        if (e.getButton() == MouseEvent.BUTTON1) // If left click
         {
-            if (e.getButton() == MouseEvent.BUTTON1) // If left click
+            for (Tower t : towers)
             {
-                towers.add(new Tower(this, x - (selectedTowerImage.getIconWidth() / 2), y - (selectedTowerImage.getIconHeight() / 2)));
-                
-                panel.spendMoney(towerSelectedCost);
-            }  
+                if (x > t.xLocation && x < t.xLocation + (t.image.getIconWidth())) // If inside X of tower
+                {
+                    if (y > t.yLocation && y < t.yLocation + (t.image.getIconHeight())) // If inside Y of tower
+                    {
+                        towerSelected(t);
 
-            towerSelected = false;
+                        return;
+                    }
+                }
+            }
         }
 
+        selectedTower = null;
+        panel.towerSelected();
+        
         super.repaint();
     }
 
@@ -188,12 +186,10 @@ public class MainGamePanel extends JPanel implements MouseListener
     {  
         super.paint(g);
 
-        if (towerSelected && mouseInPanel)
+        if (selectedTower != null)
         {
             g.setColor(new Color(160, 160, 160, 128));
-            g.fillOval(mouseX - (towerSelectedRange), mouseY - (towerSelectedRange), towerSelectedRange * 2, towerSelectedRange * 2);
-
-            selectedTowerImage.paintIcon(this, g, mouseX - (selectedTowerImage.getIconWidth() / 2), mouseY - (selectedTowerImage.getIconHeight() / 2));
+            g.fillOval((selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - (selectedTower.range), (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - (selectedTower.range), selectedTower.range * 2, selectedTower.range * 2);
         }
 
         for (Projectile p : projectiles)
@@ -210,12 +206,28 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         for (Tower t : towers)
         {
-            t.image.paintIcon(this, g, t.xLocation, t.yLocation);
+            if (!t.isBuilt())
+                t.initialTower.paintIcon(this, g, t.xLocation, t.yLocation);
+            else
+                t.image.paintIcon(this, g, t.xLocation, t.yLocation);
         }
     }
-    
-    private void towerSelected (Tower tower)
+
+    private void towerSelected(Tower tower)
     {
+        selectedTower = tower;
         
+        panel.towerSelected();
     }
+
+    private void createTower(int xLocation, int yLocation)
+    {
+        towers.add(new Tower(this, xLocation, yLocation));
+    }
+    
+    public Tower getSelectedTower()
+    {
+        return selectedTower;
+    }
+
 }

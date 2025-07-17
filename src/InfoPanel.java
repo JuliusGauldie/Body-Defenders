@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 14/07/25
+ * @version 17/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -33,11 +33,10 @@ public class InfoPanel extends JPanel
      */
     public InfoPanel(GamePanel main, MainGamePanel panel) 
     {
-        this.main = main;
-        
         setLayout(new GridLayout(4, 1));  
         
-        mainPanel = panel;
+        this.main = main;
+        this.mainPanel = panel;
         
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         this.setFocusable(false);
@@ -55,7 +54,7 @@ public class InfoPanel extends JPanel
         towerPanel.setPreferredSize(new Dimension (150, 450));
         
         JButton tower1Button = new JButton(tower1Icon);
-        tower1Button.addActionListener(e -> towerSelected());
+        tower1Button.addActionListener(e -> towerSelected(50));
         tower1Button.setPreferredSize(new Dimension (150, 50));
         towerPanel.add(tower1Button);
         
@@ -73,19 +72,21 @@ public class InfoPanel extends JPanel
         main.gainMoney(25);
     }
     
-    private void towerSelected()
+    private void towerSelected(int towerCost)
     {
-        if (main.getCurrentMoney() >= 50)
+        if (mainPanel.getSelectedTower() != null && !mainPanel.getSelectedTower().isBuilt())
         {
-            mainPanel.towerSelected(true, selectedImage, 150, 100);
+            if (main.getCurrentMoney() >= towerCost)
+            {
+                mainPanel.getSelectedTower().built();
+                
+                main.spendMoney(towerCost);
+                
+                main.towerSelected();
+            }
         }
     }
-    
-    private void unSelected()
-    {
-        mainPanel.towerSelected(false, null, 150, 100);
-    }
-    
+        
     public void setLives(String lives)
     {
         livesLabel.setText("Lives: " + lives);

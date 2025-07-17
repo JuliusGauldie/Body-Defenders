@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 14/07/25
+ * @version 17/07/25
  */
 public class Tower
 {
@@ -14,8 +14,8 @@ public class Tower
     
     // Tower stats
     private int damage = 50;
-    public int range = 90;
-    float fireRate = 0.5f;
+    public int range = 100;
+    float fireRate = 2f;
     
     // Tower economic stats
     private int towerCost = 100;
@@ -26,7 +26,12 @@ public class Tower
     MainGamePanel main;
 
     // Images
+    ImageIcon initialTower = new ImageIcon("../assets/towerInitial.png");
     ImageIcon image = new ImageIcon("../assets/tower.png");
+    
+    // Boolean
+    private boolean isBuilt = false;
+    boolean isBuilt() { return isBuilt; }
 
     /**
      * Constructor for objects of class Towers
@@ -83,5 +88,15 @@ public class Tower
     {
         lastShotTime = System.currentTimeMillis();
         main.projectiles.add(new Projectile(xLocation, yLocation, enemy, this.damage));
+    }
+    
+    public void built()
+    {
+        this.isBuilt = true;
+    }
+    
+    public int getDamage()
+    {
+        return damage;
     }
 }

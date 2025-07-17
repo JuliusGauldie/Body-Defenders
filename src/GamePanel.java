@@ -3,12 +3,12 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 14/07/25
+ * @version 17/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-public class GamePanel extends JPanel implements KeyListener
+public class GamePanel extends JPanel
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
@@ -34,9 +34,6 @@ public class GamePanel extends JPanel implements KeyListener
     {
         this.main = main;
 
-        // Keyboard
-        addKeyListener(this); // Register KeyListener
-
         mainGameP = new MainGamePanel(this);
         infoP = new InfoPanel(this, mainGameP);
         detailP = new DetailPanel();
@@ -48,10 +45,7 @@ public class GamePanel extends JPanel implements KeyListener
         pauseButton.addActionListener(e -> showPauseMenu());
 
         add(mainGameP, BorderLayout.CENTER);
-
         add(infoP, BorderLayout.EAST);
-
-        detailP.setBackground(Color.RED); 
         add(detailP, BorderLayout.SOUTH);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -64,27 +58,15 @@ public class GamePanel extends JPanel implements KeyListener
     {
         main.showPauseMenu();
     }
-
-    public void  keyTyped(KeyEvent e)
-    {
-
-    }
-
-    public void keyPressed(KeyEvent e)
-    {
-            System.out.println("TEST");
-    }
-
-    public void keyReleased(KeyEvent e)
-    {
-
-    }
        
     public void loseLife()
     {
         this.lives--;
         
-        infoP.setLives(String.valueOf(lives));
+        if (lives == 0)
+            gameOver();
+        else
+            infoP.setLives(String.valueOf(lives));
     }
     
     public int getCurrentMoney()
@@ -104,5 +86,20 @@ public class GamePanel extends JPanel implements KeyListener
         this.money += gainedMoney;
         
        infoP.setMoney(money);
+    }
+    
+    public void towerSelected()
+    {   
+        Tower tower = mainGameP.getSelectedTower();
+        
+        if (tower != null && detailP != null && tower.isBuilt())
+            detailP.towerSelected(tower);
+        else
+            detailP.towerUnSelected();
+    }
+    
+    private void gameOver()
+    {
+        // Game Over
     }
 }
