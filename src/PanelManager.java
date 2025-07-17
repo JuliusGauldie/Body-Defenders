@@ -3,7 +3,7 @@
  * Manages panel player sees
  *
  * @author Julius Gauldie
- * @version 12/06/25
+ * @version 18/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -32,12 +32,16 @@ public class PanelManager
     public void showStartMenu()
     {
         frame.setContentPane(startPanel);
+
         frame.revalidate();
     }
     
     public void showMainPanel()
     {
         frame.setContentPane(mainPanel);
+        
+        mainPanel.newGame();
+        
         frame.revalidate();
     }
 }

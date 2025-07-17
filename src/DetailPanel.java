@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 17/07/25
+ * @version 18/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -39,7 +39,7 @@ public class DetailPanel extends JPanel
     public void towerSelected(Tower tower)
     {
         damageLabel.setText("DAMAGE: " + tower.getDamage());
-        rangeLabel.setText("RANGE: " + tower.range);
+        rangeLabel.setText("RANGE: " + tower.getRange());
     }
     
     public void towerUnSelected()

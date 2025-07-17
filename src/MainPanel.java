@@ -3,7 +3,7 @@
  * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 16/06/25
+ * @version 18/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -16,7 +16,7 @@ public class MainPanel extends JPanel
 
     // Pause Menu
     private JLayeredPane layeredPane;
-    PauseMenuPanel pausePanel;
+    GameOverPanel gameOverPanel;
     GamePanel gamePanel;
 
     // Manager
@@ -41,11 +41,11 @@ public class MainPanel extends JPanel
         layeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
 
         // Create pause menu pane
-        pausePanel = new PauseMenuPanel(this);
-        pausePanel.setBounds(200, 100, 400, 300); // Centered
-        pausePanel.setOpaque(true);
-        pausePanel.setVisible(false); // Initially hidden
-        layeredPane.add(pausePanel, JLayeredPane.PALETTE_LAYER); // On top
+        gameOverPanel = new GameOverPanel(this);
+        gameOverPanel.setBounds(200, 100, 400, 300); // Centered
+        gameOverPanel.setOpaque(true);
+        gameOverPanel.setVisible(false); // Initially hidden
+        layeredPane.add(gameOverPanel, JLayeredPane.PALETTE_LAYER); // On top
 
         super.add(layeredPane, "Main Panel");
 
@@ -54,17 +54,17 @@ public class MainPanel extends JPanel
         super.repaint();
     }
 
-    public void showPauseMenu()
+    public void showGameOver()
     {
-        pausePanel.setVisible(true);
+        gameOverPanel.setVisible(true);
 
         super.revalidate();
         super.repaint();
     }
 
-    public void hidePauseMenu()
+    public void hideGameOver()
     {
-        pausePanel.setVisible(false);
+        gameOverPanel.setVisible(false);
 
         super.revalidate();
         super.repaint();
@@ -72,8 +72,15 @@ public class MainPanel extends JPanel
 
     public void showStartMenu()
     {
-        pausePanel.setVisible(false);
+        gameOverPanel.setVisible(false);
         manager.showStartMenu();
+    }
+    
+    public void newGame()
+    {
+        gameOverPanel.setVisible(false);
+        
+        gamePanel.newGame();
     }
 
 }

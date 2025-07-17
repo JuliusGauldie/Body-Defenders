@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 17/07/25
+ * @version 18/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -24,8 +24,15 @@ public class GamePanel extends JPanel
     private DetailPanel detailP;
     
     // Charachter stats
-    private int lives = 5;
-    private int money = 300;
+    private static int STARTING_LIVES = 5;
+    private int lives = STARTING_LIVES;
+    
+    private static int STARTING_MONEY = 300;
+    private int money = STARTING_MONEY;
+    
+    // Playing Game
+    private boolean playingGame = true;
+    boolean isPlaying() { return playingGame; }
 
     /**
      * Constructor for objects of class MainBoardPanel
@@ -33,16 +40,12 @@ public class GamePanel extends JPanel
     public GamePanel(MainPanel main) 
     {
         this.main = main;
-
+        
         mainGameP = new MainGamePanel(this);
         infoP = new InfoPanel(this, mainGameP);
         detailP = new DetailPanel();
 
         setLayout(new BorderLayout());
-
-        JButton pauseButton = new JButton("Pause");
-        //add(pauseButton);
-        pauseButton.addActionListener(e -> showPauseMenu());
 
         add(mainGameP, BorderLayout.CENTER);
         add(infoP, BorderLayout.EAST);
@@ -51,21 +54,18 @@ public class GamePanel extends JPanel
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         super.revalidate();
         super.repaint();
-
-    }
-
-    void showPauseMenu()
-    {
-        main.showPauseMenu();
     }
        
     public void loseLife()
     {
         this.lives--;
         
-        if (lives == 0)
+        if (lives <= 0)
+        {
             gameOver();
-        else
+            infoP.setLives("DEAD!");
+        }
+        else if (lives >= 1)
             infoP.setLives(String.valueOf(lives));
     }
     
@@ -100,6 +100,22 @@ public class GamePanel extends JPanel
     
     private void gameOver()
     {
-        // Game Over
+        main.showGameOver();
+        
+        playingGame = false;
+    }
+    
+    public void newGame()
+    {
+        playingGame = true;
+        
+        money = STARTING_MONEY;
+        infoP.setMoney(money);
+        
+        lives = STARTING_LIVES;
+        infoP.setLives(String.valueOf(lives));
+        
+        if (mainGameP != null)
+            mainGameP.newGame();
     }
 }

@@ -1,0 +1,30 @@
+TOWER 1
+50
+100
+2
+../assets/tower.png
+
+TOWER 2
+100
+80
+1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Tower Number
+// Tower Damage
+// Tower Range
+// Tower Firerate
+// Tower Image

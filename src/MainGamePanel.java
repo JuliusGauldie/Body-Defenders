@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 17/07/25
+ * @version 18/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -189,7 +189,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         if (selectedTower != null)
         {
             g.setColor(new Color(160, 160, 160, 128));
-            g.fillOval((selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - (selectedTower.range), (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - (selectedTower.range), selectedTower.range * 2, selectedTower.range * 2);
+            g.fillOval((selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - (selectedTower.getRange()), (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - (selectedTower.getRange()), selectedTower.getRange() * 2, selectedTower.getRange() * 2);
         }
 
         for (Projectile p : projectiles)
@@ -228,6 +228,22 @@ public class MainGamePanel extends JPanel implements MouseListener
     public Tower getSelectedTower()
     {
         return selectedTower;
+    }
+    
+    public void newGame()
+    {
+        for (Tower t : towers)
+        {
+            if (t.isBuilt())
+            {
+                t.resetTower();
+            }
+        }
+        
+        for (Enemy e : enemies)
+        {
+            e.hit(99999);
+        }
     }
 
 }

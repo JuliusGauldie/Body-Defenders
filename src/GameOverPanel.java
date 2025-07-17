@@ -3,12 +3,12 @@
  * Panel showing pause menu in game
  *
  * @author Julius Gauldie
- * @version 13/06/25
+ * @version 18/06/25
  */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-public class PauseMenuPanel extends JPanel
+public class GameOverPanel extends JPanel
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
@@ -19,7 +19,7 @@ public class PauseMenuPanel extends JPanel
     /**
      * Constructor for objects of class PauseMenuPanel
      */
-    public PauseMenuPanel(MainPanel main) 
+    public GameOverPanel(MainPanel main) 
     {
         this.main = main;
         
@@ -30,12 +30,12 @@ public class PauseMenuPanel extends JPanel
         add(menuButton);
         menuButton.addActionListener(e -> main.showStartMenu());
 
-        JButton unpauseButton = new JButton("Back to game");
+        JButton unpauseButton = new JButton("New Game");
         unpauseButton.setBounds(100, 350, 200, 50);
         add(unpauseButton);
-        unpauseButton.addActionListener(e -> this.setVisible(false));
+        unpauseButton.addActionListener(e -> main.newGame());
         
-        super.setPreferredSize(new Dimension(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2));
+        super.setPreferredSize(new Dimension(650, 450));
         
         super.revalidate();
         super.repaint();
