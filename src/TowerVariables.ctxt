@@ -1,0 +1,20 @@
+#BlueJ class context
+comment0.target=TowerVariables
+comment1.params=panel
+comment1.target=TowerVariables(InfoPanel)
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ TowerVariables\r\n
+comment2.params=
+comment2.target=void\ readCSVFile()
+comment2.text=\r\n\ Check\ for\ any\ saved\ CSV\ file\ to\ add\ saved\ accounts\r\n
+comment3.params=
+comment3.target=int\ findAmountOfTowers()
+comment3.text=\r\n\ Counts\ the\ amount\ of\ lines\ (accounts)\ in\ CSV\ file\r\n
+comment4.params=tower
+comment4.target=int\ getTowerDamage(int)
+comment5.params=tower
+comment5.target=int\ getTowerRange(int)
+comment6.params=tower
+comment6.target=float\ getTowerFirerate(int)
+comment7.params=tower
+comment7.target=int\ getTowerCost(int)
+numComments=8

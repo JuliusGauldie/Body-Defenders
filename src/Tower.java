@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 18/07/25
+ * @version 21/07/25
  */
 public class Tower
 {
@@ -44,7 +44,7 @@ public class Tower
         this.yLocation = y;
     }
     
-    public void setTowerStats(int damgage, int range, float fireRate)
+    public void setTowerStats(int damage, int range, float fireRate)
     {
         this.damage = damage;
         this.range = range;

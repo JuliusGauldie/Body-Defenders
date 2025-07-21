@@ -26,6 +26,7 @@ public class InfoPanel extends JPanel
     private int money = 300;
 
     GamePanel main;
+    TowerVariables tVariables;
 
     /**
      * Constructor for objects of class InfoPanel
@@ -36,6 +37,8 @@ public class InfoPanel extends JPanel
 
         this.main = main;
         this.mainPanel = panel;
+        
+        tVariables = new TowerVariables(this);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         this.setFocusable(false);
@@ -80,39 +83,14 @@ public class InfoPanel extends JPanel
     {
         if (mainPanel.getSelectedTower() != null && !mainPanel.getSelectedTower().isBuilt() && main.isPlaying())
         {
-            int towerCost, damage, range;
-            float fireRate;
-            
-            switch (tower) {
-                case 1:
-                    towerCost = 100;
-                    damage = 50;
-                    range = 100;
-                    fireRate = 2f;
-                    
-                    break;
-                case 2:
-                    towerCost = 200;
-                    damage = 200;
-                    range = 50;
-                    fireRate = 1f;
-                    
-                    break;
-                default:
-                    towerCost = 0;
-                    damage = 0;
-                    range = 100;
-                    fireRate = 0f;
-            }
-
-            if (main.getCurrentMoney() >= towerCost)
+            if (main.getCurrentMoney() >= tVariables.getTowerCost(tower))
             {
-                mainPanel.getSelectedTower().setTowerStats(damage, range, fireRate);
+                mainPanel.getSelectedTower().setTowerStats(tVariables.getTowerDamage(tower), tVariables.getTowerRange(tower), tVariables.getTowerFirerate(tower));
                 
                 mainPanel.getSelectedTower().built();
 
-                main.spendMoney(towerCost);
-
+                main.spendMoney(tVariables.getTowerCost(tower));
+    
                 main.towerSelected();
             }
         }

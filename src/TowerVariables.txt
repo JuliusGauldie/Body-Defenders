@@ -1,30 +1,5 @@
-TOWER 1
-50
-100
-2
-../assets/tower.png
+50,100,2,100,../assets/tower.png
+200,90,1,200,../assets/tower.png
 
-TOWER 2
-100
-80
-1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Tower Number
-// Tower Damage
-// Tower Range
-// Tower Firerate
-// Tower Image
+// Amount Of Towers
+// Damage, Range, Firerate, Cost, Image
