@@ -2,6 +2,10 @@
 comment0.target=GamePanel
 comment1.params=
 comment1.target=boolean\ isPlaying()
+comment10.params=upgradeVariable
+comment10.target=void\ upgradeTower(int)
+comment11.params=
+comment11.target=void\ newWave()
 comment2.params=main
 comment2.target=GamePanel(MainPanel)
 comment2.text=\r\n\ Constructor\ for\ objects\ of\ class\ MainBoardPanel\r\n
@@ -19,4 +23,4 @@ comment8.params=
 comment8.target=void\ gameOver()
 comment9.params=
 comment9.target=void\ newGame()
-numComments=10
+numComments=12

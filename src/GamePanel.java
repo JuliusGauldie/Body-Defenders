@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 18/07/25
+ * @version 24/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,14 +22,14 @@ public class GamePanel extends JPanel
     private MainGamePanel mainGameP;
     private InfoPanel infoP;
     private DetailPanel detailP;
-    
+
     // Charachter stats
     private static int STARTING_LIVES = 5;
     private int lives = STARTING_LIVES;
-    
+
     private static int STARTING_MONEY = 300;
     private int money = STARTING_MONEY;
-    
+
     // Playing Game
     private boolean playingGame = true;
     boolean isPlaying() { return playingGame; }
@@ -40,10 +40,10 @@ public class GamePanel extends JPanel
     public GamePanel(MainPanel main) 
     {
         this.main = main;
-        
+
         mainGameP = new MainGamePanel(this);
         infoP = new InfoPanel(this, mainGameP);
-        detailP = new DetailPanel();
+        detailP = new DetailPanel(this);
 
         setLayout(new BorderLayout());
 
@@ -55,11 +55,11 @@ public class GamePanel extends JPanel
         super.revalidate();
         super.repaint();
     }
-       
+
     public void loseLife()
     {
         this.lives--;
-        
+
         if (lives <= 0)
         {
             gameOver();
@@ -68,54 +68,72 @@ public class GamePanel extends JPanel
         else if (lives >= 1)
             infoP.setLives(String.valueOf(lives));
     }
-    
+
     public int getCurrentMoney()
     {
         return this.money;
     }
-    
+
     public void spendMoney(int spentMoney)
     {
         this.money -= spentMoney;
-        
+
+        detailP.setMoney(money);
         infoP.setMoney(money);
     }
-    
+
     public void gainMoney(int gainedMoney)
     {
         this.money += gainedMoney;
-        
-       infoP.setMoney(money);
+
+        detailP.setMoney(money);
+        infoP.setMoney(money);
     }
-    
+
     public void towerSelected()
     {   
         Tower tower = mainGameP.getSelectedTower();
-        
+
         if (tower != null && detailP != null && tower.isBuilt())
             detailP.towerSelected(tower);
         else
             detailP.towerUnSelected();
     }
-    
+
     private void gameOver()
     {
         main.showGameOver();
-        
+
         playingGame = false;
     }
-    
+
     public void newGame()
     {
         playingGame = true;
-        
+
         money = STARTING_MONEY;
         infoP.setMoney(money);
-        
+
         lives = STARTING_LIVES;
         infoP.setLives(String.valueOf(lives));
-        
+
         if (mainGameP != null)
             mainGameP.newGame();
+
+        detailP.newGame();
+
+        towerSelected();
+    }
+
+    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
+    { 
+        mainGameP.upgradeTower(upgradeVariable);
+
+        detailP.towerSelected(mainGameP.getSelectedTower());
+    }
+
+    public void newWave()
+    {
+        detailP.newWave();
     }
 }

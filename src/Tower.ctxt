@@ -1,6 +1,6 @@
 #BlueJ class context
 comment0.target=Tower
-comment0.text=\r\n\ Write\ a\ description\ of\ class\ Towers\ here.\r\n\r\n\ @author\ Julius\ Gauldie\r\n\ @version\ 21/07/25\r\n
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ Towers\ here.\r\n\r\n\ @author\ Julius\ Gauldie\r\n\ @version\ 24/07/25\r\n
 comment1.params=
 comment1.target=boolean\ isBuilt()
 comment10.params=
@@ -9,6 +9,8 @@ comment11.params=
 comment11.target=int\ getRange()
 comment12.params=
 comment12.target=void\ resetTower()
+comment13.params=upgradeVariable
+comment13.target=void\ upgradeTower(int)
 comment2.params=main\ x\ y
 comment2.target=Tower(MainGamePanel,\ int,\ int)
 comment2.text=\r\n\ Constructor\ for\ objects\ of\ class\ Towers\r\n
@@ -26,4 +28,4 @@ comment8.params=enemy
 comment8.target=void\ fireAt(Enemy)
 comment9.params=
 comment9.target=void\ built()
-numComments=13
+numComments=14

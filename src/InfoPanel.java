@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 18/07/25
+ * @version 24/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -37,7 +37,7 @@ public class InfoPanel extends JPanel
 
         this.main = main;
         this.mainPanel = panel;
-        
+
         tVariables = new TowerVariables(this);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -86,11 +86,11 @@ public class InfoPanel extends JPanel
             if (main.getCurrentMoney() >= tVariables.getTowerCost(tower))
             {
                 mainPanel.getSelectedTower().setTowerStats(tVariables.getTowerDamage(tower), tVariables.getTowerRange(tower), tVariables.getTowerFirerate(tower));
-                
+
                 mainPanel.getSelectedTower().built();
 
                 main.spendMoney(tVariables.getTowerCost(tower));
-    
+
                 main.towerSelected();
             }
         }

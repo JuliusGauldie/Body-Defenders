@@ -3,7 +3,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 18/07/25
+ * @version 24/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -18,11 +18,12 @@ public class MainGamePanel extends JPanel implements MouseListener
 {
     // Size
     public int CANVAS_WIDTH = 650; //Game Board widht/height
-    public int CANVAS_HEIGHT = 450;
+    public int CANVAS_HEIGHT = 500;
 
     // Images
     private static BufferedImage mapImage;
     private ImageIcon selectedTowerImage;
+    private ImageIcon towerSelectionImage = new ImageIcon("../assets/TowerSelection.png");
 
     // Try to assign images
     static {
@@ -33,7 +34,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         }
     }
 
-    //
+    // Arrays
     ArrayList<Enemy> enemies = new ArrayList<>();
     ArrayList<Tower> towers = new ArrayList<>();
     ArrayList<Projectile> projectiles = new ArrayList<>();
@@ -53,6 +54,9 @@ public class MainGamePanel extends JPanel implements MouseListener
     private int mouseX, mouseY;
 
     private GamePanel panel;
+    
+    // JLabel
+    JLabel infoLabel;
 
     /**
      * Constructor for objects of class MainGamePanel
@@ -136,6 +140,8 @@ public class MainGamePanel extends JPanel implements MouseListener
 
     public void newWave()
     {
+        panel.newWave();
+        
         enemies.add(new Enemy(path));
 
         repaint();
@@ -188,8 +194,15 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         if (selectedTower != null)
         {
+            // Tower range
             g.setColor(new Color(160, 160, 160, 128));
             g.fillOval((selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - (selectedTower.getRange()), (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - (selectedTower.getRange()), selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+            
+            // Tower Selection
+            if (!selectedTower.isBuilt()) // If not selected yet
+            {
+                towerSelectionImage.paintIcon(this, g, (selectedTower.xLocation - selectedTower.image.getIconWidth()), (selectedTower.yLocation - selectedTower.image.getIconHeight()));
+            }
         }
 
         for (Projectile p : projectiles)
@@ -232,6 +245,8 @@ public class MainGamePanel extends JPanel implements MouseListener
     
     public void newGame()
     {
+        selectedTower = null;
+        
         for (Tower t : towers)
         {
             if (t.isBuilt())
@@ -243,6 +258,14 @@ public class MainGamePanel extends JPanel implements MouseListener
         for (Enemy e : enemies)
         {
             e.hit(99999);
+        }
+    }
+    
+    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
+    {
+        if (selectedTower != null)
+        {
+            selectedTower.upgradeTower(upgradeVariable);
         }
     }
 

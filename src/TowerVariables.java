@@ -3,7 +3,7 @@
  * Write a description of class TowerVariables here.
  *
  * @author Julius Gauldie
- * @version 21/07/25
+ * @version 24/07/25
  */
 import java.util.*;
 import java.io.*;
@@ -14,13 +14,13 @@ public class TowerVariables
     InfoPanel panel;
 
     // File Setup
-    final String FILENAME = "../assets/TowerVariables.csv"; // Name of CSV file
+    final String FILENAME = "InitialTowerVariables.txt"; // Name of CSV file
     File towerVariables = new File(FILENAME); // File to read and save accounts 
-    int amountOfTowers = 2; // Total amount of lines in file
+    final int AMOUNTOFTOWERS = 2; // Total amount of lines in file
     final int VALUESPERLINE = 5; // Damage, Range, Firerate, Towercost, Tower Image
 
     // Array(Lists)
-    private String allLinesAllElements[][] = new String[amountOfTowers][VALUESPERLINE]; // Array for seperated values
+    private String allLinesAllElements[][] = new String[AMOUNTOFTOWERS][VALUESPERLINE]; // Array for seperated values
 
     // Scanner
     Scanner keyboard;
@@ -45,9 +45,7 @@ public class TowerVariables
         try {
             Scanner reader = new Scanner(towerVariables); // Open file with scanner
 
-            reader.nextLine();
-
-            while (reader.hasNextLine() && lineCount <= amountOfTowers) // Read in the file
+            while (reader.hasNextLine() && lineCount < AMOUNTOFTOWERS) // Read in the file
             {
                 String values[] = reader.nextLine().split(","); // Split the line read on the commas, and save in array
 
@@ -72,46 +70,24 @@ public class TowerVariables
         } 
     }
 
-    /**
-     * Counts the amount of lines (accounts) in CSV file
-     */
-    private int findAmountOfTowers()
-    {
-        try {
-            Scanner reader = new Scanner(towerVariables); // Open file with scanner
-
-            return Integer.valueOf(reader.nextLine());
-        }
-        catch (IOException e) { // Give error message if file can't be read
-            System.out.println("ERROR - " + FILENAME + " does not exist or has been moved"); // Error message
-
-            // Wait 5 seconds before screen is cleared, to show user error message 
-            try {
-                Thread.sleep(5000);
-            } catch (Exception a) {}
-        }   
-        
-        return 2;
-    }
-
     public int getTowerDamage(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[tower - 1][0]);
+        return Integer.valueOf(allLinesAllElements[(tower - 1)][0]);
     }
 
     public int getTowerRange(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[tower - 1][1]);
+        return Integer.valueOf(allLinesAllElements[(tower - 1)][1]);
     }
 
     public float getTowerFirerate(int tower)
     {
-        return Float.valueOf(allLinesAllElements[tower - 1][2]);
+        return Float.valueOf(allLinesAllElements[(tower - 1)][2]);
     }
 
     public int getTowerCost(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[tower - 1][3]);
+        return Integer.valueOf(allLinesAllElements[(tower - 1)][3]);
     }
 
 }

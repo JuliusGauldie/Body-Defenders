@@ -5,21 +5,21 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 21/07/25
+ * @version 24/07/25
  */
 public class Tower
 {
     // Location
     public int xLocation, yLocation;
-    
+
     // Tower stats
     private int damage;
     private int range = 20;
     float fireRate;
-    
+
     // Tower economic stats
     private int towerCost = 100;
-    
+
     // Time
     private long lastShotTime;
 
@@ -28,7 +28,7 @@ public class Tower
     // Images
     ImageIcon initialTower = new ImageIcon("../assets/towerInitial.png");
     ImageIcon image = new ImageIcon("../assets/tower.png");
-    
+
     // Boolean
     private boolean isBuilt = false;
     boolean isBuilt() { return isBuilt; }
@@ -43,7 +43,7 @@ public class Tower
         this.xLocation = x;
         this.yLocation = y;
     }
-    
+
     public void setTowerStats(int damage, int range, float fireRate)
     {
         this.damage = damage;
@@ -96,24 +96,37 @@ public class Tower
         lastShotTime = System.currentTimeMillis();
         main.projectiles.add(new Projectile(xLocation, yLocation, enemy, this.damage));
     }
-    
+
     public void built()
     {
         this.isBuilt = true;
     }
-    
+
     public int getDamage()
     {
         return damage;
     }
-    
+
     public int getRange()
     {
         return range;
     }
-    
+
     public void resetTower()
     {
         this.isBuilt = false;
+    }
+
+    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
+    {
+        switch (upgradeVariable)
+        {
+            case 1:
+                this.damage += 20;            
+            case 2:
+                this.range += 10;
+                
+                break;
+        }
     }
 }
