@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=MenuButton
+comment0.text=\r\n\ Write\ a\ description\ of\ class\ MenuButton\ here.\r\n\r\n\ @author\ Julius\ Gauldie\r\n\ @version\ 25/07/25\r\n
+comment1.params=x\ y\ width\ height\ onClick
+comment1.target=MenuButton(int,\ int,\ int,\ int,\ java.lang.Runnable)
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ MenuButton\r\n
+comment2.params=mx\ my
+comment2.target=boolean\ isClicked(int,\ int)
+numComments=3

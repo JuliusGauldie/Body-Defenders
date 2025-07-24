@@ -1,12 +1,10 @@
-
 /**
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 24/07/25
+ * @version 25/07/25
  */
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 public class GamePanel extends JPanel
 {
@@ -15,12 +13,10 @@ public class GamePanel extends JPanel
     public int CANVAS_HEIGHT = 600;
 
     // Pause Menu 
-    private JLayeredPane layeredPane;
     MainPanel main;
 
     // Side Panels
     private MainGamePanel mainGameP;
-    private InfoPanel infoP;
     private DetailPanel detailP;
 
     // Charachter stats
@@ -42,13 +38,11 @@ public class GamePanel extends JPanel
         this.main = main;
 
         mainGameP = new MainGamePanel(this);
-        infoP = new InfoPanel(this, mainGameP);
         detailP = new DetailPanel(this);
 
         setLayout(new BorderLayout());
 
         add(mainGameP, BorderLayout.CENTER);
-        add(infoP, BorderLayout.EAST);
         add(detailP, BorderLayout.SOUTH);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -59,14 +53,9 @@ public class GamePanel extends JPanel
     public void loseLife()
     {
         this.lives--;
-
-        if (lives <= 0)
-        {
+        
+        if (this.lives <= 0)
             gameOver();
-            infoP.setLives("DEAD!");
-        }
-        else if (lives >= 1)
-            infoP.setLives(String.valueOf(lives));
     }
 
     public int getCurrentMoney()
@@ -79,7 +68,6 @@ public class GamePanel extends JPanel
         this.money -= spentMoney;
 
         detailP.setMoney(money);
-        infoP.setMoney(money);
     }
 
     public void gainMoney(int gainedMoney)
@@ -87,7 +75,6 @@ public class GamePanel extends JPanel
         this.money += gainedMoney;
 
         detailP.setMoney(money);
-        infoP.setMoney(money);
     }
 
     public void towerSelected()
@@ -112,10 +99,10 @@ public class GamePanel extends JPanel
         playingGame = true;
 
         money = STARTING_MONEY;
-        infoP.setMoney(money);
+        detailP.setMoney(money);
 
         lives = STARTING_LIVES;
-        infoP.setLives(String.valueOf(lives));
+        // Set lives counter
 
         if (mainGameP != null)
             mainGameP.newGame();
@@ -134,6 +121,6 @@ public class GamePanel extends JPanel
 
     public void newWave()
     {
-        detailP.newWave();
+        mainGameP.newWave();
     }
 }

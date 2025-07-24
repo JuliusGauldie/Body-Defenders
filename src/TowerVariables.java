@@ -3,16 +3,13 @@
  * Write a description of class TowerVariables here.
  *
  * @author Julius Gauldie
- * @version 24/07/25
+ * @version 25/07/25
  */
 import java.util.*;
 import java.io.*;
 
 public class TowerVariables
 {
-    // instance variables 
-    InfoPanel panel;
-
     // File Setup
     final String FILENAME = "InitialTowerVariables.txt"; // Name of CSV file
     File towerVariables = new File(FILENAME); // File to read and save accounts 
@@ -28,10 +25,8 @@ public class TowerVariables
     /**
      * Constructor for objects of class TowerVariables
      */
-    public TowerVariables(InfoPanel panel)
+    public TowerVariables()
     {
-        this.panel = panel;
-
         readCSVFile();
     }
 

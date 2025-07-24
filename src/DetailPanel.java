@@ -29,6 +29,7 @@ public class DetailPanel extends JPanel
     // Wave Info
     JLabel waveLabel;
     private int currentWave = 1;
+    JButton newWaveButton;
 
     // Boolean 
     private boolean hasTowerSelected = false;
@@ -53,10 +54,9 @@ public class DetailPanel extends JPanel
         // Money
         moneyLabel = new JLabel("Money: 300");
         super.add(moneyLabel);
-        
+
         // Unit
-        
-        
+
         // Damage
         damageLabel = new JLabel();
         add(damageLabel);
@@ -67,6 +67,11 @@ public class DetailPanel extends JPanel
 
         // Firerate
 
+        // Wave Button
+        newWaveButton = new JButton("New Wave");
+        newWaveButton.addActionListener(e -> newWave());
+        add(newWaveButton);
+
         upgradeTowerDamage = new JButton("");
         upgradeTowerDamage.addActionListener(e -> upgradeTower(1));
         add(upgradeTowerDamage);
@@ -74,7 +79,6 @@ public class DetailPanel extends JPanel
         upgradeTowerRange = new JButton("");
         upgradeTowerRange.addActionListener(e -> upgradeTower(2));
         add(upgradeTowerRange);
-
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
@@ -102,7 +106,7 @@ public class DetailPanel extends JPanel
     public void setMoney(int money)
     {
         this.money = money;
-        
+
         moneyLabel.setText("Money: " + String.valueOf(money));
     }
 
@@ -111,6 +115,8 @@ public class DetailPanel extends JPanel
         currentWave++;
 
         waveLabel.setText("ROUND " + currentWave + " OF 50");
+
+        main.newWave();
     }
 
     private void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate

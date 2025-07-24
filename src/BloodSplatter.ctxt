@@ -1,0 +1,6 @@
+#BlueJ class context
+comment0.target=BloodSplatter
+comment1.params=xLocation\ yLocation
+comment1.target=BloodSplatter(int,\ int)
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ BloodSplatter\r\n
+numComments=2
