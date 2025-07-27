@@ -1,5 +1,5 @@
-50,100,2,100,../assets/tower.png
-200,90,1,200,../assets/tower.png
+50,100,2,100,../assets/tower.png,RIFLE TOWER
+200,90,1,200,../assets/tower.png,SHOTGUN TOWER
 
-// Damage, Range, Firerate, Cost, Image
+// Damage, Range, Firerate, Cost, Image, Name
 // Amount of towers in TowerVariables!

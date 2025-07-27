@@ -14,4 +14,6 @@ comment5.params=tower
 comment5.target=float\ getTowerFirerate(int)
 comment6.params=tower
 comment6.target=int\ getTowerCost(int)
-numComments=7
+comment7.params=tower
+comment7.target=java.lang.String\ getTowerName(int)
+numComments=8

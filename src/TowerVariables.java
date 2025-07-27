@@ -3,7 +3,7 @@
  * Write a description of class TowerVariables here.
  *
  * @author Julius Gauldie
- * @version 25/07/25
+ * @version 28/07/25
  */
 import java.util.*;
 import java.io.*;
@@ -14,7 +14,7 @@ public class TowerVariables
     final String FILENAME = "InitialTowerVariables.txt"; // Name of CSV file
     File towerVariables = new File(FILENAME); // File to read and save accounts 
     final int AMOUNTOFTOWERS = 2; // Total amount of lines in file
-    final int VALUESPERLINE = 5; // Damage, Range, Firerate, Towercost, Tower Image
+    final int VALUESPERLINE = 6; // Damage, Range, Firerate, Towercost, Tower Image, Tower Name
 
     // Array(Lists)
     private String allLinesAllElements[][] = new String[AMOUNTOFTOWERS][VALUESPERLINE]; // Array for seperated values
@@ -83,6 +83,11 @@ public class TowerVariables
     public int getTowerCost(int tower)
     {
         return Integer.valueOf(allLinesAllElements[(tower - 1)][3]);
+    }
+    
+    public String getTowerName(int tower)
+    {
+        return allLinesAllElements[(tower - 1)][5];
     }
 
 }

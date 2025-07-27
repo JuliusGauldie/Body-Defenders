@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 25/07/25
+ * @version 28/07/25
  */
 public class Tower
 {
@@ -16,6 +16,7 @@ public class Tower
     private int damage;
     private int range = 0;
     float fireRate;
+    private String towerName;
 
     // Tower economic stats
     private int towerCost = 100;
@@ -44,11 +45,12 @@ public class Tower
         this.yLocation = y;
     }
 
-    public void setTowerStats(int damage, int range, float fireRate)
+    public void setTowerStats(int damage, int range, float fireRate, String name)
     {
         this.damage = damage;
         this.range = range;
         this.fireRate = fireRate;
+        this.towerName = name;
     }
 
     public void update()
@@ -100,6 +102,11 @@ public class Tower
     public void built()
     {
         this.isBuilt = true;
+    }
+    
+    public String getName()
+    {
+        return this.towerName;
     }
 
     public int getDamage()

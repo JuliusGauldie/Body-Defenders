@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 25/07/25
+ * @version 28/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,7 +22,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     // Images
     private static BufferedImage mapImage;
     private static BufferedImage buildTowerMenuImage;
-    private ImageIcon towerSelectionImage = new ImageIcon("../assets/TowerSelection.png");
+    private ImageIcon timeControlMenu = new ImageIcon("../assets/timeControlMenu.png");
 
     // Try to assign images
     static {
@@ -58,6 +58,8 @@ public class MainGamePanel extends JPanel implements MouseListener
     Runnable onClick;
 
     TowerVariables tVariables = new TowerVariables();
+    
+    private TimeManager tManager;
 
     /**
      * Constructor for objects of class MainGamePanel
@@ -65,15 +67,17 @@ public class MainGamePanel extends JPanel implements MouseListener
     public MainGamePanel(GamePanel panel) 
     { 
         this.panel = panel;
+        
+        tManager = new TimeManager();
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
 
-        // Add map
-        JLabel imageLabel = new JLabel();
-        imageLabel.setIcon(new ImageIcon(mapImage));
-        super.add(imageLabel);
+        
+        //JLabel imageLabel = new JLabel();
+        //imageLabel.setIcon(new ImageIcon(mapImage));
+        //super.add(imageLabel);
 
         super.repaint();
 
@@ -208,6 +212,8 @@ public class MainGamePanel extends JPanel implements MouseListener
     {  
         super.paint(g);
         
+        g.drawImage(mapImage, 0, 0, null);
+        
         for (BloodSplatter b : bloodSplatter)
         {
             b.bloodSplatter.paintIcon(this, g, b.x, b.y);
@@ -257,6 +263,8 @@ public class MainGamePanel extends JPanel implements MouseListener
             if (!selectedTower.isBuilt())
                 g.drawRect(b.x, b.y, b.width, b.height);
         }
+        
+        //timeControlMenu.paintIcon(this, g, 250, 0);
     }
 
     private void towerSelected(Tower tower)
@@ -293,7 +301,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         {
             if (panel.getCurrentMoney() >= tVariables.getTowerCost(buttonIndex))
             {
-                selectedTower.setTowerStats(tVariables.getTowerDamage(buttonIndex), tVariables.getTowerRange(buttonIndex), tVariables.getTowerFirerate(buttonIndex));
+                selectedTower.setTowerStats(tVariables.getTowerDamage(buttonIndex), tVariables.getTowerRange(buttonIndex), tVariables.getTowerFirerate(buttonIndex), tVariables.getTowerName(buttonIndex));
 
                 selectedTower.built();
 

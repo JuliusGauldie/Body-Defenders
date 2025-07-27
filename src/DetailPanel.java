@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 24/07/25
+ * @version 28/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -19,6 +19,7 @@ public class DetailPanel extends JPanel
     private int money = 300;
 
     // Tower Stats
+    JLabel towerNameLabel;
     JLabel damageLabel;
     JLabel rangeLabel;
 
@@ -41,7 +42,7 @@ public class DetailPanel extends JPanel
      */
     public DetailPanel(GamePanel main) 
     {
-        setLayout(new FlowLayout());  
+        setLayout(new FlowLayout(FlowLayout.LEFT));  
 
         this.main = main;
 
@@ -55,8 +56,10 @@ public class DetailPanel extends JPanel
         moneyLabel = new JLabel("Money: 300");
         super.add(moneyLabel);
 
-        // Unit
-
+        // Tower Name
+        towerNameLabel = new JLabel("");
+        super.add(towerNameLabel);
+        
         // Damage
         damageLabel = new JLabel();
         add(damageLabel);
@@ -74,17 +77,18 @@ public class DetailPanel extends JPanel
 
         upgradeTowerDamage = new JButton("");
         upgradeTowerDamage.addActionListener(e -> upgradeTower(1));
-        add(upgradeTowerDamage);
+        //add(upgradeTowerDamage);
 
         upgradeTowerRange = new JButton("");
         upgradeTowerRange.addActionListener(e -> upgradeTower(2));
-        add(upgradeTowerRange);
+        //add(upgradeTowerRange);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
 
     public void towerSelected(Tower tower)
     {
+        towerNameLabel.setText(tower.getName());
         damageLabel.setText("DAMAGE: " + tower.getDamage());
         rangeLabel.setText("RANGE: " + tower.getRange());
         upgradeTowerDamage.setText("UPGRADE TOWER DAMAGE");
@@ -95,6 +99,7 @@ public class DetailPanel extends JPanel
 
     public void towerUnSelected()
     {
+        towerNameLabel.setText("");
         damageLabel.setText("");
         rangeLabel.setText("");
         upgradeTowerDamage.setText("");

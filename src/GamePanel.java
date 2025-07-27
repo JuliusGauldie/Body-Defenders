@@ -2,7 +2,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 25/07/25
+ * @version 28/07/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -39,6 +39,7 @@ public class GamePanel extends JPanel
 
         mainGameP = new MainGamePanel(this);
         detailP = new DetailPanel(this);
+        detailP.setOpaque(true);
 
         setLayout(new BorderLayout());
 

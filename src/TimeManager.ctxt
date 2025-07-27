@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.target=TimeManager
+comment1.params=
+comment1.target=TimeManager()
+comment1.text=\r\n\ Constructor\ for\ objects\ of\ class\ TimeManager\r\n
+comment2.params=
+comment2.target=void\ pause()
+comment3.params=
+comment3.target=void\ normalSpeed()
+comment4.params=
+comment4.target=void\ fastSpeed()
+numComments=5
