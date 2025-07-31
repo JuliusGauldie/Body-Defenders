@@ -2,7 +2,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 28/07/25
+ * @version 31/07/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -115,8 +115,6 @@ public class GamePanel extends JPanel
 
     public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
     { 
-        mainGameP.upgradeTower(upgradeVariable);
-
         detailP.towerSelected(mainGameP.getSelectedTower());
     }
 

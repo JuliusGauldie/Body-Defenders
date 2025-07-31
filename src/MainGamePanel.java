@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 28/07/25
+ * @version 31/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,6 +22,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     // Images
     private static BufferedImage mapImage;
     private static BufferedImage buildTowerMenuImage;
+    private static BufferedImage upgradeTowerMenuImage;
     private ImageIcon timeControlMenu = new ImageIcon("../assets/timeControlMenu.png");
 
     // Try to assign images
@@ -29,6 +30,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         try {
             mapImage = ImageIO.read(new File("../assets/map.png"));
             buildTowerMenuImage = ImageIO.read(new File("../assets/BuildTowerMenu.png"));
+            upgradeTowerMenuImage = ImageIO.read(new File("../assets/UpgradeTowerMenu.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,7 +60,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     Runnable onClick;
 
     TowerVariables tVariables = new TowerVariables();
-    
+
     private TimeManager tManager;
 
     /**
@@ -67,14 +69,13 @@ public class MainGamePanel extends JPanel implements MouseListener
     public MainGamePanel(GamePanel panel) 
     { 
         this.panel = panel;
-        
+
         tManager = new TimeManager();
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
 
-        
         //JLabel imageLabel = new JLabel();
         //imageLabel.setIcon(new ImageIcon(mapImage));
         //super.add(imageLabel);
@@ -132,7 +133,7 @@ public class MainGamePanel extends JPanel implements MouseListener
                 if (!e.isAlive())
                 {
                     bloodSplatter.add(new BloodSplatter(e.xLocation, e.yLocation));
-                    
+
                     enemyIter.remove();  
                 }
                 else if (e.madeToEnd())
@@ -150,7 +151,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     public void newWave()
     {
         enemies.add(new Enemy(path));
-        
+
         panel.gainMoney(25);
 
         repaint();
@@ -188,9 +189,7 @@ public class MainGamePanel extends JPanel implements MouseListener
             }
         }
 
-        selectedTower = null;
-        activeMenuButtons.clear();
-        panel.towerSelected();
+        unselectTower();
 
         super.repaint();
     }
@@ -211,9 +210,9 @@ public class MainGamePanel extends JPanel implements MouseListener
     public void paint (Graphics g)
     {  
         super.paint(g);
-        
+
         g.drawImage(mapImage, 0, 0, null);
-        
+
         for (BloodSplatter b : bloodSplatter)
         {
             b.bloodSplatter.paintIcon(this, g, b.x, b.y);
@@ -232,6 +231,15 @@ public class MainGamePanel extends JPanel implements MouseListener
                     buildTowerMenuImage,
                     (selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - buildTowerMenuImage.getWidth() / 2,
                     (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - buildTowerMenuImage.getHeight() / 2,
+                    null
+                );
+            }
+            else if (selectedTower.isBuilt())
+            {
+                g.drawImage(
+                    upgradeTowerMenuImage,
+                    (selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - upgradeTowerMenuImage.getWidth() / 2,
+                    (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - upgradeTowerMenuImage.getHeight() / 2,
                     null
                 );
             }
@@ -260,10 +268,9 @@ public class MainGamePanel extends JPanel implements MouseListener
         g.setColor(Color.RED);
         for (MenuButton b : activeMenuButtons) 
         {
-            if (!selectedTower.isBuilt())
-                g.drawRect(b.x, b.y, b.width, b.height);
+            g.drawRect(b.x, b.y, b.width, b.height);
         }
-        
+
         //timeControlMenu.paintIcon(this, g, 250, 0);
     }
 
@@ -279,16 +286,33 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         int radius = 45;  // distance from tower center to square center
         int squareSize = 32; // size of each square button
+        if (!tower.isBuilt())
+        {
+            for (int i = 0; i < 5; i++) {
+                double angle = Math.toRadians(-90 + i * 72); // -90 to start at top, then every 72 degrees
 
-        for (int i = 0; i < 5; i++) {
-            double angle = Math.toRadians(-90 + i * 72); // -90 to start at top, then every 72 degrees
+                int x = (int)(centerX + Math.cos(angle) * radius) - squareSize / 2;
+                int y = (int)(centerY + Math.sin(angle) * radius) - squareSize / 2;
 
-            int x = (int)(centerX + Math.cos(angle) * radius) - squareSize / 2;
-            int y = (int)(centerY + Math.sin(angle) * radius) - squareSize / 2;
+                final int buttonIndex = i + 1;
 
-            final int buttonIndex = i + 1;
+                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {buildTower(buttonIndex);}));
+            }
+        }
+        else
+        {
+            radius = 50;
 
-            activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {buildTower(buttonIndex);}));
+            for (int i = 0; i < 4; i++) {
+                double angle = Math.toRadians(-90 + i * 90); // -90 to start at top, then every 90 degrees
+
+                int x = (int)(centerX + Math.cos(angle) * radius) - squareSize / 2;
+                int y = (int)(centerY + Math.sin(angle) * radius) - squareSize / 2;
+
+                final int buttonIndex = i + 1;
+
+                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {upgradeTower(buttonIndex);}));
+            }
         }
     }
 
@@ -296,12 +320,12 @@ public class MainGamePanel extends JPanel implements MouseListener
     {   
         if (buttonIndex > 2)
             return;
-        
+
         if (selectedTower != null && !selectedTower.isBuilt())
         {
             if (panel.getCurrentMoney() >= tVariables.getTowerCost(buttonIndex))
             {
-                selectedTower.setTowerStats(tVariables.getTowerDamage(buttonIndex), tVariables.getTowerRange(buttonIndex), tVariables.getTowerFirerate(buttonIndex), tVariables.getTowerName(buttonIndex));
+                selectedTower.setTowerStats(tVariables.getTowerDamage(buttonIndex), tVariables.getTowerRange(buttonIndex), tVariables.getTowerFirerate(buttonIndex), tVariables.getTowerCost(buttonIndex), tVariables.getTowerName(buttonIndex));
 
                 selectedTower.built();
 
@@ -311,6 +335,40 @@ public class MainGamePanel extends JPanel implements MouseListener
             }
         }
 
+        unselectTower();
+    }
+
+    private void upgradeTower(int buttonIndex)
+    {
+        switch (buttonIndex)
+        {       
+            case 2:
+                if (panel.getCurrentMoney() >= 300)
+                {
+                    panel.spendMoney(300);
+                    selectedTower.upgradeTower(2);
+                }
+
+                break;
+            case 3:
+                if (selectedTower != null && selectedTower.isBuilt())
+                {
+                    panel.gainMoney(selectedTower.getCost());
+                    selectedTower.refund();
+
+                    unselectTower();
+                }
+
+                break;
+            case 4:
+                if (panel.getCurrentMoney() >= 200)
+                {
+                    panel.spendMoney(200);
+                    selectedTower.upgradeTower(1);
+                }
+
+                break;
+        }
     }
 
     private void createTower(int xLocation, int yLocation)
@@ -334,18 +392,10 @@ public class MainGamePanel extends JPanel implements MouseListener
                 t.resetTower();
             }
         }
-        
-        enemies.clear();
-        
-        bloodSplatter.clear();
-    }
 
-    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
-    {
-        if (selectedTower != null)
-        {
-            selectedTower.upgradeTower(upgradeVariable);
-        }
+        enemies.clear();
+
+        bloodSplatter.clear();
     }
 
     public void MenuButton(int x, int y, int radius, Runnable onClick) {
@@ -359,4 +409,10 @@ public class MainGamePanel extends JPanel implements MouseListener
         return Math.hypot(mx - x, my - y) <= radius;
     }
 
+    private void unselectTower()
+    {
+        selectedTower = null;
+        activeMenuButtons.clear();
+        panel.towerSelected();
+    }
 }

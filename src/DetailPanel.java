@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 28/07/25
+ * @version 31/07/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -22,10 +22,6 @@ public class DetailPanel extends JPanel
     JLabel towerNameLabel;
     JLabel damageLabel;
     JLabel rangeLabel;
-
-    // Tower Upgrades
-    JButton upgradeTowerDamage;
-    JButton upgradeTowerRange;
 
     // Wave Info
     JLabel waveLabel;
@@ -75,14 +71,6 @@ public class DetailPanel extends JPanel
         newWaveButton.addActionListener(e -> newWave());
         add(newWaveButton);
 
-        upgradeTowerDamage = new JButton("");
-        upgradeTowerDamage.addActionListener(e -> upgradeTower(1));
-        //add(upgradeTowerDamage);
-
-        upgradeTowerRange = new JButton("");
-        upgradeTowerRange.addActionListener(e -> upgradeTower(2));
-        //add(upgradeTowerRange);
-
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
 
@@ -91,8 +79,6 @@ public class DetailPanel extends JPanel
         towerNameLabel.setText(tower.getName());
         damageLabel.setText("DAMAGE: " + tower.getDamage());
         rangeLabel.setText("RANGE: " + tower.getRange());
-        upgradeTowerDamage.setText("UPGRADE TOWER DAMAGE");
-        upgradeTowerRange.setText("UPGRADE TOWER RANGE");
 
         hasTowerSelected = true;
     }
@@ -102,8 +88,6 @@ public class DetailPanel extends JPanel
         towerNameLabel.setText("");
         damageLabel.setText("");
         rangeLabel.setText("");
-        upgradeTowerDamage.setText("");
-        upgradeTowerRange.setText("");
 
         hasTowerSelected = false;
     }
