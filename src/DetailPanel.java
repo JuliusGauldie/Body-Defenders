@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 31/07/25
+ * @version 01/08/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -11,7 +11,7 @@ public class DetailPanel extends JPanel
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
-    public int CANVAS_HEIGHT = 100;
+    public int CANVAS_HEIGHT = 80;
 
     // LABELS
     // Money
@@ -52,10 +52,15 @@ public class DetailPanel extends JPanel
         moneyLabel = new JLabel("Money: 300");
         super.add(moneyLabel);
 
+        // Wave Button
+        newWaveButton = new JButton("New Wave");
+        newWaveButton.addActionListener(e -> newWave());
+        add(newWaveButton);
+
         // Tower Name
         towerNameLabel = new JLabel("");
         super.add(towerNameLabel);
-        
+
         // Damage
         damageLabel = new JLabel();
         add(damageLabel);
@@ -65,11 +70,6 @@ public class DetailPanel extends JPanel
         add(rangeLabel);
 
         // Firerate
-
-        // Wave Button
-        newWaveButton = new JButton("New Wave");
-        newWaveButton.addActionListener(e -> newWave());
-        add(newWaveButton);
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }

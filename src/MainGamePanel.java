@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 31/07/25
+ * @version 01/08/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -17,7 +17,7 @@ public class MainGamePanel extends JPanel implements MouseListener
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
-    public int CANVAS_HEIGHT = 500;
+    public int CANVAS_HEIGHT = 520;
 
     // Images
     private static BufferedImage mapImage;
@@ -59,7 +59,7 @@ public class MainGamePanel extends JPanel implements MouseListener
     int x, y, radius;
     Runnable onClick;
 
-    TowerVariables tVariables = new TowerVariables();
+    StaticVariables sVariables = new StaticVariables();
 
     private TimeManager tManager;
 
@@ -76,28 +76,23 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         addMouseListener(this);
 
-        //JLabel imageLabel = new JLabel();
-        //imageLabel.setIcon(new ImageIcon(mapImage));
-        //super.add(imageLabel);
-
         super.repaint();
 
-        // Corners on map for enemies
-        path.add(new Point(10, 260));
-        path.add(new Point(120, 260));
-        path.add(new Point(120, 110));
-        path.add(new Point(280, 110));
-        path.add(new Point(280, 315));
-        path.add(new Point(495, 315));
-        path.add(new Point(495, 210));
-        path.add(new Point(800, 210));
+        for (int i = 0; i < sVariables.getAmountOfMapPoints(); i++)
+        {
+            int coord1 = sVariables.getCoord(i, 0);
+            int coord2 = sVariables.getCoord(i, 1);
 
-        // Points for player to place towers
-        createTower(100, 300);
-        createTower(100, 48);
-        createTower(250, 48);
-        createTower(300, 350);
-        createTower(500, 350);
+            path.add(new Point(coord1, coord2));
+        }
+
+        for (int i =0; i < 5; i++)
+        {
+            int coord1 = sVariables.getTCoord(i, 0);
+            int coord2 = sVariables.getTCoord(i, 1);
+
+            createTower(coord1, coord2);
+        }
 
         // Works as update function (runs 60 times a second - 60fps)
         java.util.Timer timer = new java.util.Timer();
@@ -323,13 +318,13 @@ public class MainGamePanel extends JPanel implements MouseListener
 
         if (selectedTower != null && !selectedTower.isBuilt())
         {
-            if (panel.getCurrentMoney() >= tVariables.getTowerCost(buttonIndex))
+            if (panel.getCurrentMoney() >= sVariables.getTowerCost(buttonIndex))
             {
-                selectedTower.setTowerStats(tVariables.getTowerDamage(buttonIndex), tVariables.getTowerRange(buttonIndex), tVariables.getTowerFirerate(buttonIndex), tVariables.getTowerCost(buttonIndex), tVariables.getTowerName(buttonIndex));
+                selectedTower.setTowerStats(sVariables.getTowerDamage(buttonIndex), sVariables.getTowerRange(buttonIndex), sVariables.getTowerFirerate(buttonIndex), sVariables.getTowerCost(buttonIndex), sVariables.getTowerName(buttonIndex));
 
                 selectedTower.built();
 
-                panel.spendMoney(tVariables.getTowerCost(buttonIndex));
+                panel.spendMoney(sVariables.getTowerCost(buttonIndex));
 
                 panel.towerSelected();
             }
