@@ -3,7 +3,7 @@
  * Write a description of class BloodSplatter here.
  *
  * @author Julius Gauldie
- * @version 25/07/25
+ * @version 03/08/25
  */
 import javax.swing.*;
 
@@ -11,7 +11,7 @@ public class BloodSplatter
 {
     // instance variables 
     public int x, y;
-    public ImageIcon bloodSplatter = new ImageIcon("../assets/BloodSplatter.png");
+    public ImageIcon bloodSplatter = new ImageIcon("resources/assets/BloodSplatter.png");
 
     /**
      * Constructor for objects of class BloodSplatter

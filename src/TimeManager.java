@@ -3,9 +3,8 @@
  * Write a description of class TimeManager here.
  *
  * @author Julius Gauldie
- * @version 28/07/25
+ * @version 03/08/25
  */
-import java.awt.*;
 import javax.swing.*;
 
 public class TimeManager extends JPanel

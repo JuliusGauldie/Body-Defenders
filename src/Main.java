@@ -1,16 +1,14 @@
+import javax.swing.*;
 
 /**
  * Class to start up game
  *
  * @author Julius Gauldie
- * @version 09/06/25
+ * @version 03/08/25
  */
-import java.awt.*;
-import javax.swing.*;
-
 public class Main extends JFrame
 {
-    //JPanels
+    // JPanels
     PanelManager manager = new PanelManager(this);
     
     // CONSTANTS
@@ -30,5 +28,9 @@ public class Main extends JFrame
         setContentPane(manager.getStartMenu());
 
         setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new Main();
     }
 }

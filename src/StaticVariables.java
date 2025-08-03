@@ -3,7 +3,7 @@
  * Write a description of class TowerVariables here.
  *
  * @author Julius Gauldie
- * @version 01/08/25
+ * @version 03/08/25
  */
 import java.util.*;
 import java.io.*;
@@ -11,22 +11,29 @@ import java.io.*;
 public class StaticVariables
 {
     // Files
-    final String TOWERFILENAME = "InitialTowerVariables.txt"; // Name of CSV file
-    final String MAPFILENAME = "MapVariables.txt";
+    final String TOWERFILENAME = "resources/data/InitialTowerVariables.txt"; // Name of CSV file
+    final String ENEMYFILENAME = "resources/data/EnemyVariables.txt"; // Name of CSV file
+    final String MAPFILENAME = "resources/data/MapVariables.txt";
 
     // Tower Variables File Setup
     File towerVariables = new File(TOWERFILENAME); // File to read and save accounts 
-    final int AMOUNTOFTOWERS = 2; // Total amount of lines in file
+    final int AMOUNTOFTOWERS = 5; // Total amount of lines in file
     final int VALUESPERLINE = 6; // Damage, Range, Firerate, Towercost, Tower Image, Tower Name
+
+    // Enemy Variables File Setup
+    File enemyVariables = new File(ENEMYFILENAME);
+    final int AMOUNTOFENEMIES = 5; // Total amount of lines in file
+    final int ENEMYVALUESPERLINE = 7; // Health, Speed, Image, Name
 
     // Map Variables File Setup
     File mapVariables = new File(MAPFILENAME);
     final int AMOUNTOFPOINTS = 10;
     final int LINETOWERSPOTSTARTS = 13;
-    final int AMOUNTOFTOWERSPOTS = 5;
+    final int AMOUNTOFTOWERSPOTS = 11;
 
     // Array(Lists)
     private String allLinesAllElements[][] = new String[AMOUNTOFTOWERS][VALUESPERLINE]; // Array for seperated values
+    private String enemyVariableElements[][] = new String[AMOUNTOFENEMIES][ENEMYVALUESPERLINE]; // Array for enemy variables
     private int mapVariableElements[][] = new int[AMOUNTOFPOINTS][2]; // 2 numbers for each coordinate
     private int towerPlacements[][] = new int[AMOUNTOFTOWERSPOTS][2]; // 2 Numbers - 1 for each coordinate
 
@@ -38,7 +45,10 @@ public class StaticVariables
      */
     public StaticVariables()
     {
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+
         readTowerVariables();
+        readEnemyVariables();
         readMapVariables();
         readTowerPlacementVariables();
     }
@@ -65,16 +75,40 @@ public class StaticVariables
 
                 lineCount++; 
             }
+
+            reader.close();
         }
         catch (Exception e) // If file can't be read
         { 
-            System.out.println("ERROR - CSV file does not follow layout (name,address,number,type,balance)"); // Error Message
-            System.out.println("Could not load one or more accounts");
+            System.out.println("ERROR - CAN'T READ TOWER FILE"); // Error Message
+        } 
+    }
 
-            // Wait 5 seconds before screen is cleared, to show user error message 
-            try {
-                Thread.sleep(5000);
-            } catch (Exception a) {}
+    public void readEnemyVariables()
+    {
+        int lineCount = 0; // Int to store amount of lines (accounts)
+
+        try {
+            Scanner reader = new Scanner(enemyVariables); // Open file with scanner
+
+            while (reader.hasNextLine() && lineCount < AMOUNTOFENEMIES) // Read in the file
+            {
+                String values[] = reader.nextLine().split(","); // Split the line read on the commas, and save in array
+
+                // Go through the array, and put every string into a new array to have all values seperated
+                for (int i = 0; i < values.length; i++)
+                {
+                    enemyVariableElements[lineCount][i] = values[i];
+                }
+
+                lineCount++; 
+            }
+
+            reader.close();
+        }
+        catch (Exception e) // If file can't be read
+        { 
+            System.out.println("ERROR - CAN'T READ ENEMY FILE"); // Error Message
         } 
     }
 
@@ -97,16 +131,12 @@ public class StaticVariables
 
                 lineCount++;
             }
+
+            reader.close();
         }
         catch (Exception e) // If file can't be read
         { 
-            System.out.println("ERROR - CSV file does not follow layout (name,address,number,type,balance)"); // Error Message
-            System.out.println("Could not load one or more accounts");
-
-            // Wait 5 seconds before screen is cleared, to show user error message 
-            try {
-                Thread.sleep(5000);
-            } catch (Exception a) {}
+            System.out.println("ERROR - CAN'T READ MAP FILE"); // Error Message
         } 
     }
 
@@ -134,43 +164,48 @@ public class StaticVariables
 
                 lineCount++;
             }
+
+            reader.close();
         }
         catch (Exception e) // If file can't be read
         { 
-            System.out.println("ERROR - CSV file does not follow layout (name,address,number,type,balance)"); // Error Message
-            System.out.println("Could not load one or more accounts");
-
-            // Wait 5 seconds before screen is cleared, to show user error message 
-            try {
-                Thread.sleep(5000);
-            } catch (Exception a) {}
+            System.out.println("ERROR - CAN'T READ TOWER PLACEMENT FILE"); // Error Message
         } 
     }
 
-    public int getTowerDamage(int tower)
+    // TOWER VARIABLES --------------------
+
+    public float getTowerDamage(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[(tower - 1)][0]);
+        return Float.valueOf(allLinesAllElements[(tower - 1)][1]);
     }
 
     public int getTowerRange(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[(tower - 1)][1]);
+        return Integer.valueOf(allLinesAllElements[(tower - 1)][2]);
     }
 
     public float getTowerFirerate(int tower)
     {
-        return Float.valueOf(allLinesAllElements[(tower - 1)][2]);
+        return Float.valueOf(allLinesAllElements[(tower - 1)][3]);
     }
 
     public int getTowerCost(int tower)
     {
-        return Integer.valueOf(allLinesAllElements[(tower - 1)][3]);
+        return Integer.valueOf(allLinesAllElements[(tower - 1)][4]);
     }
 
     public String getTowerName(int tower)
     {
-        return allLinesAllElements[(tower - 1)][5];
+        return allLinesAllElements[(tower - 1)][1];
     }
+
+    public String getTowerImage(int tower)
+    {
+        return allLinesAllElements[tower - 1][5];
+    }
+
+    //COORDINATES --------------------
 
     public int getCoord(int point, int coordinateNumber)
     {
@@ -185,5 +220,36 @@ public class StaticVariables
     public int getAmountOfMapPoints()
     {
         return AMOUNTOFPOINTS;
+    }
+
+    public int getAmountOfTowerSpots()
+    {
+        return AMOUNTOFTOWERSPOTS;
+    }
+
+    //ENEMIES --------------------
+
+    public String getEnemyImage(int enemyIndex)
+    {
+        return enemyVariableElements[enemyIndex - 1][6];
+    }
+
+    public int getEnemyReward(int enemyIndex)
+    {
+        return Integer.valueOf(enemyVariableElements[enemyIndex - 1][5]);
+    }
+
+    public float getEnemyHealth(int enemyIndex)
+    {
+        return Float.valueOf(enemyVariableElements[enemyIndex - 1][1]);
+    }
+
+    public float getEnemySpeed(int enemyIndex)
+    {
+        return Float.valueOf(enemyVariableElements[enemyIndex - 1][3]);
+    }
+    public int getEnemyDamage(int enemyIndex)
+    {
+        return Integer.valueOf(enemyVariableElements[enemyIndex - 1][2]);
     }
 }

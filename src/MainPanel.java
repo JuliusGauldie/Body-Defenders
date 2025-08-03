@@ -3,10 +3,9 @@
  * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 18/07/25
+ * @version 03/08/25
  */
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 public class MainPanel extends JPanel 
 {
@@ -82,5 +81,4 @@ public class MainPanel extends JPanel
         
         gamePanel.newGame();
     }
-
 }

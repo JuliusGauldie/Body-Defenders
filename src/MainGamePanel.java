@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 01/08/25
+ * @version 03/08/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.util.*;
+import java.util.List;
 
 public class MainGamePanel extends JPanel implements MouseListener
 {
@@ -23,21 +24,20 @@ public class MainGamePanel extends JPanel implements MouseListener
     private static BufferedImage mapImage;
     private static BufferedImage buildTowerMenuImage;
     private static BufferedImage upgradeTowerMenuImage;
-    private ImageIcon timeControlMenu = new ImageIcon("../assets/timeControlMenu.png");
 
     // Try to assign images
     static {
         try {
-            mapImage = ImageIO.read(new File("../assets/map.png"));
-            buildTowerMenuImage = ImageIO.read(new File("../assets/BuildTowerMenu.png"));
-            upgradeTowerMenuImage = ImageIO.read(new File("../assets/UpgradeTowerMenu.png"));
+            mapImage = ImageIO.read(new File("resources/assets/map.png"));
+            buildTowerMenuImage = ImageIO.read(new File("resources/assets/BuildTowerMenu.png"));
+            upgradeTowerMenuImage = ImageIO.read(new File("resources/assets/UpgradeTowerMenu.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     // Arrays
-    ArrayList<Enemy> enemies = new ArrayList<>();
+    public ArrayList<Enemy> enemies = new ArrayList<>();
     ArrayList<Tower> towers = new ArrayList<>();
     ArrayList<Projectile> projectiles = new ArrayList<>();
     ArrayList<MenuButton> activeMenuButtons = new ArrayList<>();
@@ -49,6 +49,7 @@ public class MainGamePanel extends JPanel implements MouseListener
 
     // Towers
     private Tower selectedTower = null;
+    private WaveInfo currentWave = null;
 
     private GamePanel panel;
 
@@ -60,8 +61,10 @@ public class MainGamePanel extends JPanel implements MouseListener
     Runnable onClick;
 
     StaticVariables sVariables = new StaticVariables();
+    GameManager gameManager = new GameManager();
+    private java.util.Timer enemySpawnTimer = null;
 
-    private TimeManager tManager;
+    private boolean spawningWave = false;
 
     /**
      * Constructor for objects of class MainGamePanel
@@ -70,14 +73,13 @@ public class MainGamePanel extends JPanel implements MouseListener
     { 
         this.panel = panel;
 
-        tManager = new TimeManager();
-
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         addMouseListener(this);
 
         super.repaint();
 
+        // add waypoints for enemies to follow
         for (int i = 0; i < sVariables.getAmountOfMapPoints(); i++)
         {
             int coord1 = sVariables.getCoord(i, 0);
@@ -86,7 +88,8 @@ public class MainGamePanel extends JPanel implements MouseListener
             path.add(new Point(coord1, coord2));
         }
 
-        for (int i =0; i < 5; i++)
+        // add building spots for towers
+        for (int i =0; i < sVariables.getAmountOfTowerSpots(); i++)
         {
             int coord1 = sVariables.getTCoord(i, 0);
             int coord2 = sVariables.getTCoord(i, 1);
@@ -115,8 +118,23 @@ public class MainGamePanel extends JPanel implements MouseListener
                 Projectile p = iter.next();
                 p.update();
 
-                if (!p.isActive())
+                if (!p.isActive()) {
+                    // Area slow effect for projectileIndex 2
+                    if (p.getProjectileIndex() == 2) {
+                        int areaRadius = 60; // match with projectile's area radius
+                        for (Enemy e : enemies) 
+                        {
+                            float ex = e.xLocation - p.xLocation;
+                            float ey = e.yLocation - p.yLocation;
+                            float edist = (float)Math.sqrt(ex * ex + ey * ey);
+                            if (edist <= areaRadius) 
+                            {
+                                e.hit(p.damage); // Apply damage to enemies in area
+                            }
+                        }
+                    }
                     iter.remove();
+                }
             }
 
             Iterator<Enemy> enemyIter = enemies.iterator();
@@ -129,11 +147,13 @@ public class MainGamePanel extends JPanel implements MouseListener
                 {
                     bloodSplatter.add(new BloodSplatter(e.xLocation, e.yLocation));
 
+                    panel.gainMoney(sVariables.getEnemyReward(e.enemyType()));
+
                     enemyIter.remove();  
                 }
                 else if (e.madeToEnd())
                 {
-                    panel.loseLife();
+                    panel.takeDamage(e.getDamage());
 
                     enemyIter.remove();
                 }
@@ -143,14 +163,50 @@ public class MainGamePanel extends JPanel implements MouseListener
         }
     }
 
-    public void newWave()
-    {
-        enemies.add(new Enemy(path));
 
-        panel.gainMoney(25);
+ public void newWave(int currentWaveNumber) 
+{
+    currentWave = gameManager.getWave(currentWaveNumber);
 
-        repaint();
-    }
+    spawningWave = true;
+
+    // Create a queue/list of enemy types to spawn
+    List<Integer> spawnQueue = new ArrayList<>();
+    for (int i = 0; i < currentWave.getEnemy1Count(); i++) spawnQueue.add(1);
+    for (int i = 0; i < currentWave.getEnemy2Count(); i++) spawnQueue.add(2);
+    for (int i = 0; i < currentWave.getEnemy3Count(); i++) spawnQueue.add(3);
+    for (int i = 0; i < currentWave.getEnemy4Count(); i++) spawnQueue.add(4);
+    for (int i = 0; i < currentWave.getEnemy5Count(); i++) spawnQueue.add(5);
+
+    // Optional: Shuffle so enemies spawn in random order
+    Collections.shuffle(spawnQueue);
+
+    enemySpawnTimer = new java.util.Timer();
+    enemySpawnTimer.scheduleAtFixedRate(new TimerTask() {
+        int spawnIndex = 0;
+
+        @Override
+        public void run() 
+        {
+            if (spawnIndex < spawnQueue.size()) 
+            {
+                int enemyType = spawnQueue.get(spawnIndex);
+
+                // Spawn correct enemy type
+                enemies.add(new Enemy(path, sVariables.getEnemyImage(enemyType), enemyType, sVariables.getEnemyHealth(enemyType), sVariables.getEnemySpeed(enemyType), sVariables.getEnemyDamage(enemyType)));
+
+                spawnIndex++;
+                repaint();
+            } 
+            else 
+            {
+                spawningWave = false;
+                enemySpawnTimer.cancel();
+            }
+        }
+    }, 0, 500); // spawn every 500ms)
+}
+
 
     public void mouseClicked(MouseEvent e)
     {
@@ -172,9 +228,9 @@ public class MainGamePanel extends JPanel implements MouseListener
 
             for (Tower t : towers)
             {
-                if (x > t.xLocation && x < t.xLocation + (t.image.getIconWidth())) // If inside X of tower
+                if (x > t.xLocation && x < t.xLocation + (t.initialTower.getIconWidth())) // If inside X of tower
                 {
-                    if (y > t.yLocation && y < t.yLocation + (t.image.getIconHeight())) // If inside Y of tower
+                    if (y > t.yLocation && y < t.yLocation + (t.initialTower.getIconHeight())) // If inside Y of tower
                     {
                         towerSelected(t);
 
@@ -189,12 +245,7 @@ public class MainGamePanel extends JPanel implements MouseListener
         super.repaint();
     }
 
-    public void mouseEntered(MouseEvent e) 
-    {
-        // Get current cursor coordinates
-        int x = e.getX();
-        int y = e.getY();
-    }
+    public void mouseEntered(MouseEvent e)  {}
 
     public void mousePressed (MouseEvent e) {}
 
@@ -217,15 +268,15 @@ public class MainGamePanel extends JPanel implements MouseListener
         {
             // Tower range
             g.setColor(new Color(160, 160, 160, 128));
-            g.fillOval((selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - (selectedTower.getRange()), (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - (selectedTower.getRange()), selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+            g.fillOval((selectedTower.xLocation + selectedTower.initialTower.getIconWidth() / 2) - (selectedTower.getRange()), (selectedTower.yLocation + selectedTower.initialTower.getIconHeight() / 2) - (selectedTower.getRange()), selectedTower.getRange() * 2, selectedTower.getRange() * 2);
 
             // Tower Selection
             if (!selectedTower.isBuilt()) // If not selected yet
             {
                 g.drawImage(
                     buildTowerMenuImage,
-                    (selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - buildTowerMenuImage.getWidth() / 2,
-                    (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - buildTowerMenuImage.getHeight() / 2,
+                    (selectedTower.xLocation + selectedTower.initialTower.getIconWidth() / 2) - buildTowerMenuImage.getWidth() / 2,
+                    (selectedTower.yLocation + selectedTower.initialTower.getIconHeight() / 2) - buildTowerMenuImage.getHeight() / 2,
                     null
                 );
             }
@@ -276,8 +327,8 @@ public class MainGamePanel extends JPanel implements MouseListener
         panel.towerSelected();
 
         activeMenuButtons.clear();
-        int centerX = tower.xLocation + tower.image.getIconWidth() / 2;
-        int centerY = tower.yLocation + tower.image.getIconHeight() / 2;
+        int centerX = tower.xLocation + tower.initialTower.getIconWidth() / 2;
+        int centerY = tower.yLocation + tower.initialTower.getIconHeight() / 2;
 
         int radius = 45;  // distance from tower center to square center
         int squareSize = 32; // size of each square button
@@ -313,26 +364,40 @@ public class MainGamePanel extends JPanel implements MouseListener
 
     private void buildTower(int buttonIndex)
     {   
-        if (buttonIndex > 2)
-            return;
-
         if (selectedTower != null && !selectedTower.isBuilt())
         {
             if (panel.getCurrentMoney() >= sVariables.getTowerCost(buttonIndex))
             {
-                selectedTower.setTowerStats(sVariables.getTowerDamage(buttonIndex), sVariables.getTowerRange(buttonIndex), sVariables.getTowerFirerate(buttonIndex), sVariables.getTowerCost(buttonIndex), sVariables.getTowerName(buttonIndex));
+                selectedTower.setTowerStats(sVariables.getTowerDamage(buttonIndex), sVariables.getTowerRange(buttonIndex), sVariables.getTowerFirerate(buttonIndex), sVariables.getTowerImage(buttonIndex), sVariables.getTowerName(buttonIndex), sVariables.getTowerCost(buttonIndex), buttonIndex);
 
                 selectedTower.built();
 
                 panel.spendMoney(sVariables.getTowerCost(buttonIndex));
 
                 panel.towerSelected();
+
+                if (buttonIndex == 5) // Laser Tower
+                {
+                    for (Tower t : towers) 
+                    {
+                        if (selectedTower != t)
+                        {
+                            float ex = t.xLocation - selectedTower.xLocation;
+                            float ey = t.yLocation - selectedTower.yLocation;
+                            float edist = (float)Math.sqrt(ex * ex + ey * ey);
+                            if (edist <= selectedTower.getRange()) 
+                            {
+                                t.receiveBuff(1.2f); // Apply damage to enemies in area 
+                            }
+                        }
+                    }             
+                }
             }
         }
 
         unselectTower();
     }
-
+   
     private void upgradeTower(int buttonIndex)
     {
         switch (buttonIndex)
@@ -348,6 +413,14 @@ public class MainGamePanel extends JPanel implements MouseListener
             case 3:
                 if (selectedTower != null && selectedTower.isBuilt())
                 {
+                    if (selectedTower.getTowerIndex() == 5)
+                    {
+                        for (Tower t : towers)
+                        {
+                            t.removeBuff();
+                        }
+                    }
+
                     panel.gainMoney(selectedTower.getCost());
                     selectedTower.refund();
 
@@ -409,5 +482,10 @@ public class MainGamePanel extends JPanel implements MouseListener
         selectedTower = null;
         activeMenuButtons.clear();
         panel.towerSelected();
+    }
+
+    public boolean isSpawningWave() 
+    {
+        return spawningWave;
     }
 }

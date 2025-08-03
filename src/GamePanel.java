@@ -2,7 +2,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 31/07/25
+ * @version 03/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -20,8 +20,8 @@ public class GamePanel extends JPanel
     private DetailPanel detailP;
 
     // Charachter stats
-    private static int STARTING_LIVES = 5;
-    private int lives = STARTING_LIVES;
+    private static int STARTING_HEALTH = 1000;
+    private int playerHealth = STARTING_HEALTH;
 
     private static int STARTING_MONEY = 300;
     private int money = STARTING_MONEY;
@@ -51,11 +51,11 @@ public class GamePanel extends JPanel
         super.repaint();
     }
 
-    public void loseLife()
+    public void takeDamage(int damage)
     {
-        this.lives--;
+        this.playerHealth -= damage;
         
-        if (this.lives <= 0)
+        if (this.playerHealth <= 0)
             gameOver();
     }
 
@@ -102,7 +102,7 @@ public class GamePanel extends JPanel
         money = STARTING_MONEY;
         detailP.setMoney(money);
 
-        lives = STARTING_LIVES;
+        playerHealth = STARTING_HEALTH;
         // Set lives counter
 
         if (mainGameP != null)
@@ -118,8 +118,13 @@ public class GamePanel extends JPanel
         detailP.towerSelected(mainGameP.getSelectedTower());
     }
 
-    public void newWave()
+    public void newWave(int currentWave)
     {
-        mainGameP.newWave();
+        mainGameP.newWave(currentWave);
+    }
+
+    public boolean spawningWave()
+    {
+        return mainGameP.isSpawningWave();
     }
 }

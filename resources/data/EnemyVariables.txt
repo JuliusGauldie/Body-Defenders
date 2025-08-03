@@ -1,0 +1,8 @@
+Spike Virus,25,50,1.0,0,15,resources/assets/enemy1.png
+Shell Bacteria,80,100,0.6,4,35,resources/assets/enemy2.png
+Toxin Worm,50,75,0.8,0,25,resources/assets/enemy3.png
+Mutation Swarm,18,25,1.2,0,10,resources/assets/enemy4.png
+Parasite Queen,400,300,0.4,8,150,resources/assets/enemy5.png
+
+
+// Name, Health, Damage, Speed, Armor, Reward, Image

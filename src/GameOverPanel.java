@@ -3,10 +3,9 @@
  * Panel showing pause menu in game
  *
  * @author Julius Gauldie
- * @version 18/06/25
+ * @version 03/08/25
  */
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 public class GameOverPanel extends JPanel
 {
