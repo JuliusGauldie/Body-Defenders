@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -16,6 +16,9 @@ public class DetailPanel extends JPanel
     // Money
     JLabel moneyLabel;
 
+    // Health
+    JLabel healthLabel;
+
     // Tower Stats
     JLabel towerNameLabel;
     JLabel damageLabel;
@@ -27,12 +30,12 @@ public class DetailPanel extends JPanel
     private int currentWave = 1;
     JButton newWaveButton;
 
-    GamePanel main;
+    GameLayerPanel main;
 
     /**
      * Constructor for objects of class DetailPanel
      */
-    public DetailPanel(GamePanel main) 
+    public DetailPanel(GameLayerPanel main) 
     {
         setLayout(new FlowLayout(FlowLayout.LEFT));  
 
@@ -46,7 +49,11 @@ public class DetailPanel extends JPanel
 
         // Money
         moneyLabel = new JLabel("Money: 300");
-        super.add(moneyLabel);
+        add(moneyLabel);
+
+        // Health
+        healthLabel = new JLabel("Health: 1000");
+        add(healthLabel);
 
         // Wave Button
         newWaveButton = new JButton("New Wave");
@@ -74,7 +81,7 @@ public class DetailPanel extends JPanel
 
     public void towerSelected(Tower tower)
     {
-        towerNameLabel.setText(tower.getName());
+        towerNameLabel.setText(tower.getName() + " ||");
         damageLabel.setText("DAMAGE: " + tower.getDamage());
         rangeLabel.setText("RANGE: " + tower.getRange());
         fireRateLabel.setText("FIRERATE: " + tower.getFireRate());
@@ -90,7 +97,15 @@ public class DetailPanel extends JPanel
 
     public void setMoney(int money)
     {
-        moneyLabel.setText("Money: " + String.valueOf(money));
+        moneyLabel.setText("DNA: " + String.valueOf(money));
+    }
+
+    public void setHealth(int health)
+    {
+        if (health > 0)
+            healthLabel.setText("Health: " + String.valueOf(health));
+        else
+            healthLabel.setText("Health: DEAD!");
     }
 
     public void newWave()
@@ -110,5 +125,7 @@ public class DetailPanel extends JPanel
         currentWave = 1;
 
         waveLabel.setText("ROUND " + currentWave + " OF 50");
+        healthLabel.setText("Health: 1000");
+
     }
 }

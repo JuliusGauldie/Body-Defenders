@@ -4,7 +4,7 @@ import javax.swing.*;
  * Class to start up game
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 public class Main extends JFrame
 {
@@ -20,7 +20,7 @@ public class Main extends JFrame
      */
     public Main()
     {
-        setTitle("Tower Defense Game");
+        setTitle("Body Defenders");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setSize(CANVAS_WIDTH, CANVAS_HEIGHT);

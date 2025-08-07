@@ -4,7 +4,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 public class Tower
 {
@@ -26,7 +26,7 @@ public class Tower
     // Time
     private long lastShotTime;
 
-    MainGamePanel main;
+    GameplayPanel main;
 
     // Images
     ImageIcon initialTower = new ImageIcon("resources/assets/towerInitial.png");
@@ -43,7 +43,7 @@ public class Tower
     /**
      * Constructor for objects of class Towers
      */
-    public Tower(MainGamePanel main, int x, int y)
+    public Tower(GameplayPanel main, int x, int y)
     {
         this.main = main;
 

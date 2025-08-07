@@ -2,21 +2,21 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import java.awt.*;
 import javax.swing.*;
-public class GamePanel extends JPanel
+public class GameLayerPanel extends JPanel
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
     public int CANVAS_HEIGHT = 600;
 
     // Pause Menu 
-    MainPanel main;
+    GameScreenPanel main;
 
     // Side Panels
-    private MainGamePanel mainGameP;
+    private GameplayPanel mainGameP;
     private DetailPanel detailP;
 
     // Charachter stats
@@ -33,13 +33,12 @@ public class GamePanel extends JPanel
     /**
      * Constructor for objects of class MainBoardPanel
      */
-    public GamePanel(MainPanel main) 
+    public GameLayerPanel(GameScreenPanel main) 
     {
         this.main = main;
 
-        mainGameP = new MainGamePanel(this);
+        mainGameP = new GameplayPanel(this);
         detailP = new DetailPanel(this);
-        detailP.setOpaque(true);
 
         setLayout(new BorderLayout());
 
@@ -57,6 +56,8 @@ public class GamePanel extends JPanel
         
         if (this.playerHealth <= 0)
             gameOver();
+
+        detailP.setHealth(playerHealth);
     }
 
     public int getCurrentMoney()
@@ -92,22 +93,22 @@ public class GamePanel extends JPanel
     {
         main.showGameOver();
 
+        mainGameP.stopUpdate();
+
         playingGame = false;
     }
 
-    public void newGame()
+    public void newGame(int levelIndex)
     {
         playingGame = true;
 
         money = STARTING_MONEY;
         detailP.setMoney(money);
 
-        playerHealth = STARTING_HEALTH;
         // Set lives counter
-
-        if (mainGameP != null)
-            mainGameP.newGame();
-
+        playerHealth = STARTING_HEALTH;
+        
+        mainGameP.newGame(levelIndex);
         detailP.newGame();
 
         towerSelected();
