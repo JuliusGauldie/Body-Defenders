@@ -3,7 +3,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import java.util.*;
 import java.awt.Point;
@@ -17,12 +17,13 @@ public class Enemy
     private java.util.List<Point> path;
 
     private float speed = 1;
-    private float health;
+    private float startingHealth;
+    private float currentHealth;
     private int damage;
 
     private int enemyType;
 
-    boolean isAlive() { return health > 0; }
+    boolean isAlive() { return currentHealth > 0; }
     
     boolean madeToEnd() { return currentWaypoint >= path.size(); }
 
@@ -35,7 +36,8 @@ public class Enemy
     public Enemy(List<Point> path, String EnemyImageFileName, int enemyType, float health, float speed, int damage)
     {
         this.enemyType = enemyType;
-        this.health = health;
+        this.startingHealth = health;
+        currentHealth = startingHealth;
         this.speed = speed;
         this.path = path;
         this.damage = damage;
@@ -75,7 +77,7 @@ public class Enemy
 
     public void hit(float damage)
     {
-        health -= damage;
+        currentHealth -= damage;
     }
 
     public int enemyType()
@@ -86,5 +88,15 @@ public class Enemy
     public int getDamage()
     {
         return damage;
+    }
+
+    public float getHealth()
+    {        
+        return currentHealth;
+    }
+
+    public float getStartingHealth()
+    {
+        return startingHealth;
     }
 }

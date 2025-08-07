@@ -3,14 +3,15 @@
  * Manages panel player sees
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import javax.swing.*;
 public class PanelManager
 {
     public JFrame frame;
-    private StartMenuPanel startPanel;
-    private MainPanel mainPanel;
+    private MainMenuPanel mainMenuPanel;
+    private LevelSelectionPanel levelSelectionPanel;
+    private GameScreenPanel gamePanel;
     
     /**
      * Constructor for objects of class PanelManager
@@ -18,27 +19,37 @@ public class PanelManager
     public PanelManager(JFrame frame) 
     {
         this.frame = frame;
-        startPanel = new StartMenuPanel(this);
-        mainPanel = new MainPanel(this);
+        mainMenuPanel = new MainMenuPanel(this);
+        levelSelectionPanel = new LevelSelectionPanel(this);
+        gamePanel = new GameScreenPanel(this);
     }
     
-    public StartMenuPanel getStartMenu()
+    public MainMenuPanel getStartMenu()
     {
-        return this.startPanel;
+        return this.mainMenuPanel;
     }
     
     public void showStartMenu()
     {
-        frame.setContentPane(startPanel);
+        frame.setContentPane(mainMenuPanel);
+
+        frame.revalidate();
+    }
+
+    public void showDifficultySelection()
+    {
+        frame.setContentPane(levelSelectionPanel);
 
         frame.revalidate();
     }
     
-    public void showMainPanel()
+    public void startGame(String gameSettings)
     {
-        frame.setContentPane(mainPanel);
+        frame.setContentPane(gamePanel);
+
+        String values[] = gameSettings.split(","); // Values[0] = Level Index (1 - 3), Values[1] = Difficulty Index (1 - 3)
         
-        mainPanel.newGame();
+        gamePanel.newGame(Integer.valueOf(values[0]));
         
         frame.revalidate();
     }

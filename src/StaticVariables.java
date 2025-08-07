@@ -3,7 +3,7 @@
  * Write a description of class TowerVariables here.
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import java.util.*;
 import java.io.*;
@@ -14,6 +14,7 @@ public class StaticVariables
     final String TOWERFILENAME = "resources/data/InitialTowerVariables.txt"; // Name of CSV file
     final String ENEMYFILENAME = "resources/data/EnemyVariables.txt"; // Name of CSV file
     final String MAPFILENAME = "resources/data/MapVariables.txt";
+    final String TOWERPLACEMENTFILENAME = "resources/data/TowerBuildSpots.txt"; // Name of CSV file for tower placements
 
     // Tower Variables File Setup
     File towerVariables = new File(TOWERFILENAME); // File to read and save accounts 
@@ -27,9 +28,11 @@ public class StaticVariables
 
     // Map Variables File Setup
     File mapVariables = new File(MAPFILENAME);
-    final int AMOUNTOFPOINTS = 10;
-    final int LINETOWERSPOTSTARTS = 13;
-    final int AMOUNTOFTOWERSPOTS = 11;
+    final int AMOUNTOFPOINTS = 17;
+
+    // Tower Placement Variables File Setup
+    File towerPlacementVariables = new File(TOWERPLACEMENTFILENAME);
+    final int AMOUNTOFTOWERSPOTS = 10;
 
     // Array(Lists)
     private String allLinesAllElements[][] = new String[AMOUNTOFTOWERS][VALUESPERLINE]; // Array for seperated values
@@ -145,12 +148,7 @@ public class StaticVariables
         int lineCount = 0;
 
         try {
-            Scanner reader = new Scanner(mapVariables); // Open file with scanner
-
-            for (int i = 0; i < LINETOWERSPOTSTARTS - 1; i++)
-            {
-                reader.nextLine();
-            }
+            Scanner reader = new Scanner(towerPlacementVariables); // Open file with scanner
 
             while (reader.hasNextLine() && lineCount < AMOUNTOFTOWERSPOTS)
             {
@@ -197,7 +195,7 @@ public class StaticVariables
 
     public String getTowerName(int tower)
     {
-        return allLinesAllElements[(tower - 1)][1];
+        return allLinesAllElements[(tower - 1)][0];
     }
 
     public String getTowerImage(int tower)

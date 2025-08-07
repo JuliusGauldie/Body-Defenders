@@ -3,11 +3,11 @@
  * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 07/08/25
  */
 import java.awt.*;
 import javax.swing.*;
-public class MainPanel extends JPanel 
+public class GameScreenPanel extends JPanel 
 {
     // Size
     public int CANVAS_WIDTH = 800; //Game Board widht/height
@@ -16,15 +16,17 @@ public class MainPanel extends JPanel
     // Pause Menu
     private JLayeredPane layeredPane;
     GameOverPanel gameOverPanel;
-    GamePanel gamePanel;
+    GameLayerPanel gamePanel;
 
     // Manager
     PanelManager manager;
 
+    private int currentLevelIndex = 0;
+
     /**
      * Constructor for objects of class MainPanel
      */
-    public MainPanel(PanelManager manager) 
+    public GameScreenPanel(PanelManager manager) 
     {
         this.manager = manager;
 
@@ -35,7 +37,7 @@ public class MainPanel extends JPanel
         layeredPane.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         // Create Game Panel
-        gamePanel = new GamePanel(this);
+        gamePanel = new GameLayerPanel(this);
         gamePanel.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         layeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
 
@@ -75,10 +77,17 @@ public class MainPanel extends JPanel
         manager.showStartMenu();
     }
     
-    public void newGame()
+    public void newGame(int levelIndex)
     {
         gameOverPanel.setVisible(false);
         
-        gamePanel.newGame();
+        currentLevelIndex = levelIndex;
+
+        gamePanel.newGame(currentLevelIndex);
+    }
+
+    public int getCurrentLevelIndex()
+    {
+        return currentLevelIndex;
     }
 }
