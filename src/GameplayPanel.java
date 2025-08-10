@@ -231,6 +231,8 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
             return;
         }
 
+        bloodSplatter.clear();
+
         currentWave = gameManager.getWave(currentWaveNumber);
 
         spawningWave = true;
@@ -472,10 +474,13 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
             g2.dispose();
         }
 
+        if (selectedTower != null && selectedTower.isBuilt())
+        {
         g.setColor(Color.RED);
         for (MenuButton b : activeMenuButtons) 
         {
             g.drawRect(b.x, b.y, b.width, b.height);
+        }
         }
     }
 
@@ -535,7 +540,7 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
 
                 panel.towerSelected();
 
-                if (buttonIndex == 5) // Laser Tower
+                if (buttonIndex == 5) // Adrenaline Tower
                 {
                     for (Tower t : towers) 
                     {
@@ -580,7 +585,7 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
                         }
                     }
 
-                    panel.gainMoney((int) 0.85 * selectedTower.getCost());
+                    panel.gainMoney((int) (0.85 * selectedTower.getCost()));
                     selectedTower.refund();
 
                     unselectTower();
