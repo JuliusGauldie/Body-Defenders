@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -84,7 +84,7 @@ public class DetailPanel extends JPanel
         towerNameLabel.setText(tower.getName() + " ||");
         damageLabel.setText("DAMAGE: " + tower.getDamage());
         rangeLabel.setText("RANGE: " + tower.getRange());
-        fireRateLabel.setText("FIRERATE: " + tower.getFireRate());
+        fireRateLabel.setText(String.format("FIRERATE: %.1f", tower.getFireRate()));
     }
 
     public void towerUnSelected()

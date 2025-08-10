@@ -1,7 +1,0 @@
-Pill Launcher,10,100,0.8,100,resources/assets/tower1.png
-Bandage Mortar,10,130,0.5,120,resources/assets/tower2.png
-Vaccine Injector,25,100,0.4,150,resources/assets/tower3.png
-Sanitizer Sprayer,1,140,8,180,resources/assets/tower4.png
-Adrenaline Injector,0,200,0.0,160,resources/assets/tower5.png
-
-// Name, Damage, Range, FireRate, Cost, Image

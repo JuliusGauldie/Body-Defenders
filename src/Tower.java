@@ -1,10 +1,11 @@
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 
 /**
  * Write a description of class Towers here.
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 public class Tower
 {
@@ -14,11 +15,13 @@ public class Tower
     // Tower stats
     private float damage;
     private int range;
-    float fireRate;
+    private float fireRate;
     
     private String towerName;
 
     private int towerIndex; // 1 - Initial, 2 - Sniper, 3 - Area, 4 - Slow, 5 - Laser
+
+    private int currentLevel = 1;
 
     // Tower economic stats
     private int towerCost;
@@ -35,9 +38,18 @@ public class Tower
     // Boolean
     private boolean isBuilt = false;
     private boolean canFire = false;
-    private boolean isBuffed = false;
-    private float buffAmount = 0;
 
+    // Abilities
+    private boolean ability1 = false;
+    private boolean ability2 = false;
+    boolean hasAbility1() { return ability1; }
+    boolean hasAbility2() { return ability2; }
+
+    // Buffs
+    public ArrayList<Tower> buffTowers = new ArrayList<>();
+    private int buffAmount = 0;
+
+    // Is tower built 
     boolean isBuilt() { return isBuilt; }
 
     /**
@@ -83,7 +95,7 @@ public class Tower
     {
         for (Enemy e : main.enemies)
         {
-            if (e.isAlive() && inRange(e))
+            if (e.isAlive() && inRange(e) && !e.isTunneled())
             {
                 return e;
             }
@@ -109,10 +121,8 @@ public class Tower
     {
         float currentFirerate = fireRate;
 
-        if (isBuffed)
-        {
-            currentFirerate *= buffAmount;
-        }
+        if (buffAmount > 0)
+            currentFirerate *= (1 + (0.2f * buffAmount));
 
         long currentTime = System.currentTimeMillis();
         long delay = (long)(1000 / currentFirerate); // delay between shots in milliseconds
@@ -124,80 +134,87 @@ public class Tower
     {
         lastShotTime = System.currentTimeMillis();
 
-        main.projectiles.add(new Projectile(xLocation, yLocation, enemy, this.damage, towerIndex));
+        if (towerIndex == 1 && ability1) // Tower 1 - Ability 1
+        {
+            int gap = 6;
+            float dx = enemy.xLocation - xLocation, dy = enemy.yLocation - yLocation, len = (float) Math.hypot(dx, dy);
+            float px = -dy / len * gap, py = dx / len * gap;
+
+            main.projectiles.add(new Projectile((int)(xLocation + px), (int)(yLocation + py), enemy, this.damage, this));
+            main.projectiles.add(new Projectile((int)(xLocation - px), (int)(yLocation - py), enemy, this.damage, this));
+        }  
+        else 
+        {
+            main.projectiles.add(new Projectile(xLocation, yLocation, enemy, this.damage, this));
+        }
     }
 
-    public void built()
-    {
-        this.isBuilt = true;
-    }
+    public void built() { this.isBuilt = true; }
     
-    public void refund()
-    {
-        this.isBuilt = false;
-    }
+    public void resetTower() { this.isBuilt = false; ability1 = false; ability2 = false; }
     
-    public String getName()
-    {
-        return this.towerName;
-    }
+    public String getName() { return this.towerName;}
 
-    public float getDamage()
-    {
-        return damage;
-    }
+    public float getDamage() { return damage; }
 
-    public int getRange()
-    {
-        return range;
-    }
+    public int getRange() { return range; }
 
     public float getFireRate()
     {
-        if (isBuffed)
-            return fireRate * buffAmount;
+        if (buffAmount > 0)
+            return fireRate *= (1 + (0.2f * buffAmount));
         else
             return fireRate;
     }
     
-    public int getCost()
-    {
-        return towerCost;
+    public int getCost() { return towerCost; }
+
+    public int getTowerIndex() { return towerIndex; }
+
+    public int getCurrentLevel() { return currentLevel; }
+
+    public boolean onRightSide() 
+    { 
+        return this.xLocation >= 400;
     }
 
-    public void resetTower()
+    public void receiveBuff(Tower buffTower)
     {
-        this.isBuilt = false;
+        buffAmount++;
+
+        buffTowers.add(buffTower);
     }
 
-    public int getTowerIndex()
+    public void removeBuff(Tower buffTower)
     {
-        return towerIndex;
-    }
+        buffAmount--;
 
-    public void receiveBuff(float buffAmount)
-    {
-        isBuffed = true;
-        this.buffAmount = buffAmount;
-    }
-
-    public void removeBuff()
-    {
-        isBuffed = false;
-    }
-
-    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
-    {
-        switch (upgradeVariable)
+        for (Tower t : buffTowers)
         {
-            case 1:
-                this.damage += 20; 
-                
+            if (t == buffTower)
+            {
+                buffTowers.remove(t);
                 break;
-            case 2:
-                this.range += 10;
-                
-                break;
+            }
         }
+    }
+
+    public void upgradeTower(float newDamage, int newRange, float newFireRate) 
+    {
+        currentLevel++;
+
+        this.damage = newDamage;
+        this.range = newRange;
+        this.fireRate = newFireRate;
+    }
+
+    public void getAbility1()
+    {
+        ability1 = true;
+    }
+
+    public void getAbility2()
+    {
+        ability2 = true;
     }
 }

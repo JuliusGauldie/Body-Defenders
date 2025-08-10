@@ -3,7 +3,7 @@
  * Panel showing start menu on startup
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -22,7 +22,7 @@ public class LevelSelectionPanel extends JPanel
         title.setFont(new Font("Arial", Font.BOLD, 22));
         add(title, gbc);
 
-        String[] maps = {"Level 1: Veins", "Level 2: Brain", "Level 3: Heart"};
+        String[] maps = {"Level 1: Heart", "Level 2: Brain", "Level 3: Stomach"};
         String[] difficulties = {"Easy", "Medium", "Hard"};
 
         gbc.gridy++;

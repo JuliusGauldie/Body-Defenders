@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
  * Write a description of class Projectile here.
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 public class Projectile
 {
@@ -16,7 +16,6 @@ public class Projectile
     Enemy target;
     private int projectileIndex; // 1 - Normal, 2 - Area, 3 - Piercing
 
-    
     boolean active = true;
     
     String projectileImageName = ""; // Image file name for the projectile
@@ -25,17 +24,24 @@ public class Projectile
     ImageIcon image;
 
     // Pierce projectile
-    private boolean hitTarget = false;
+    private boolean hitEnemy = false;
     private int pierceCount = 0;
     private float dirX, dirY;
     public ArrayList<Enemy> hitEnemies = new ArrayList<>();
+
+    public Tower parentTower;
+
+    // Tower 1 - Ability 1
+    private boolean rebounded;
+    boolean hasRebounded() { return rebounded; }
     
     /**
      * Constructor for objects of class Projectile
      */
-    public Projectile(int x, int y, Enemy target, float damage, int projectileIndex)
+    public Projectile(int x, int y, Enemy target, float damage, Tower parentTower)
     {   
-        this.projectileIndex = projectileIndex;
+        this.parentTower = parentTower;
+        this.projectileIndex = parentTower.getTowerIndex();
 
         projectileImageName = "resources/assets/projectile" + projectileIndex + ".png";
         image = new ImageIcon(projectileImageName);
@@ -45,17 +51,19 @@ public class Projectile
         
         this.target = target;
         this.damage = damage;
-
-        if (projectileIndex == 3) // Piercing projectile
+  
+        if (projectileIndex == 3) // Piercing projectile - Normal Tower 3
         {
-            pierceCount = 2; 
+            if (parentTower.hasAbility1()) // Tower 3 - Ability 1: Extra enemy pierced
+                pierceCount = 3;
+            else   
+                pierceCount = 2;
         }
     }
     
     public void update()
     {
-
-        if (!target.isAlive() || !active || hitTarget)
+        if (!target.isAlive() || !active || hitEnemy)
         {
             if (projectileIndex != 3 || pierceCount <= 0) // Area damage
             {
@@ -85,13 +93,18 @@ public class Projectile
         
         if (distance < 10f) // Piercing projectile
         {
-            hitTarget = true;
-
             if (projectileIndex != 2 && projectileIndex != 3) // Area damage
-                target.hit(damage);
+            {
+                if (projectileIndex == 4)
+                    target.weakenEnemy(parentTower.hasAbility2() ? 5000f : 3000f);
 
-            if (projectileIndex != 3)
+                target.hit(damage);
+            }
+            
+            if (projectileIndex != 3) // If not piercing projectile
                 active = false;
+
+            hitEnemy = true;
             
             return;
         }
@@ -118,5 +131,14 @@ public class Projectile
     public void decreasePierceCount()
     {
         pierceCount--;
+    }
+
+    public void updateTarget(Enemy newEnemy) // Tower 1 - Ability 2
+    {
+        rebounded = true;
+
+        target = newEnemy;
+        hitEnemy = false;
+        active = true;
     }
 }

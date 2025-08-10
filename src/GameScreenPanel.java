@@ -3,7 +3,7 @@
  * Panel showing main game and game manager
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -43,7 +43,7 @@ public class GameScreenPanel extends JPanel
 
         // Create pause menu pane
         gameOverPanel = new GameOverPanel(this);
-        gameOverPanel.setBounds(200, 100, 400, 300); // Centered
+        gameOverPanel.setBounds(40, 10, 700, 500); // Centered
         gameOverPanel.setOpaque(true);
         gameOverPanel.setVisible(false); // Initially hidden
         layeredPane.add(gameOverPanel, JLayeredPane.PALETTE_LAYER); // On top
@@ -55,8 +55,10 @@ public class GameScreenPanel extends JPanel
         super.repaint();
     }
 
-    public void showGameOver()
+    public void showGameOver(boolean lostGame, int score)
     {
+        gameOverPanel.updateLabel(lostGame, score);
+
         gameOverPanel.setVisible(true);
 
         super.revalidate();

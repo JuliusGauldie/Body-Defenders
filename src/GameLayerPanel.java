@@ -2,7 +2,7 @@
  * Panel showing main game
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 10/08/25
  */
 import java.awt.*;
 import javax.swing.*;
@@ -55,9 +55,14 @@ public class GameLayerPanel extends JPanel
         this.playerHealth -= damage;
         
         if (this.playerHealth <= 0)
-            gameOver();
+            gameOver(true);
 
         detailP.setHealth(playerHealth);
+    }
+
+    public int getCurrentHealth()
+    {
+        return this.playerHealth;
     }
 
     public int getCurrentMoney()
@@ -89,9 +94,9 @@ public class GameLayerPanel extends JPanel
             detailP.towerUnSelected();
     }
 
-    private void gameOver()
+    public void gameOver(boolean lostGame)
     {
-        main.showGameOver();
+        main.showGameOver(lostGame, mainGameP.calculateScore());
 
         mainGameP.stopUpdate();
 
@@ -112,11 +117,6 @@ public class GameLayerPanel extends JPanel
         detailP.newGame();
 
         towerSelected();
-    }
-
-    public void upgradeTower(int upgradeVariable) // 1 - Damage, 2 - Range, 3 - Firerate
-    { 
-        detailP.towerSelected(mainGameP.getSelectedTower());
     }
 
     public void newWave(int currentWave)
