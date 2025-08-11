@@ -1,3 +1,9 @@
+/**
+ * Panel showing main game
+ *
+ * @author Julius Gauldie
+ * @version 11/08/25
+ */
 import java.awt.*;
 import javax.swing.*;
 
@@ -10,9 +16,14 @@ public class GameOverPanel extends JPanel
     private JLabel scoreLabel;
     private JLabel highscoreLabel;
 
+    private HighScoreManager scoreManager = new HighScoreManager();
+
+    private GameScreenPanel main;
 
     public GameOverPanel(GameScreenPanel main) 
     {
+        this.main = main;
+
         setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
         setLayout(null); 
 
@@ -61,11 +72,21 @@ public class GameOverPanel extends JPanel
         }
 
         scoreLabel.setText("Score: " + score);
-        highscoreLabel.setText("Highscore: " + getHighScore()); 
+
+        if (getHighScore() != Integer.MAX_VALUE)
+            highscoreLabel.setText("Highscore: " + getHighScore()); 
+        else    
+            highscoreLabel.setText("Highscore: -");
+
+        if (score > getHighScore() || getHighScore() == Integer.MAX_VALUE)
+        {
+            scoreManager.setScore(main.getCurrentLevelIndex(), score);
+            scoreManager.saveScores();
+        }
     }
 
     private int getHighScore() 
     {
-        return 1;
+        return scoreManager.getScore(main.getCurrentLevelIndex());
     }
 }

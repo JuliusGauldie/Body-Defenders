@@ -4,7 +4,7 @@ import javax.swing.*;
  * Class to start up game
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 11/08/25
  */
 public class Main extends JFrame
 {
@@ -30,7 +30,8 @@ public class Main extends JFrame
         setVisible(true);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         new Main();
     }
 }

@@ -3,7 +3,7 @@
  * Manages panel player sees
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 11/08/25
  */
 import javax.swing.*;
 public class PanelManager
@@ -38,6 +38,8 @@ public class PanelManager
 
     public void showDifficultySelection()
     {
+        levelSelectionPanel.updateHighScore();
+
         frame.setContentPane(levelSelectionPanel);
 
         frame.revalidate();

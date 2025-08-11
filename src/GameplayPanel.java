@@ -2,7 +2,7 @@
  * Write a description of class Main here.
  *
  * @author Julius Gauldie
- * @version 10/08/25
+ * @version 11/08/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -694,10 +694,10 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
         if (selectedTower != null && selectedTower.isBuilt())
         {
             g.setColor(Color.RED);
-            for (MenuButton b : activeMenuButtons) 
-            {
-                g.drawRect(b.x, b.y, b.width, b.height);
-            }
+            //for (MenuButton b : activeMenuButtons) 
+            //{
+                //g.drawRect(b.x, b.y, b.width, b.height);
+            //}
         }
     }
 
@@ -729,6 +729,7 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
         else
         {
             radius = 50;
+            squareSize = 45;
 
             for (int i = 0; i < 4; i++) {
                 double angle = Math.toRadians(-90 + i * 90); // -90 to start at top, then every 90 degrees
