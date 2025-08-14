@@ -1,23 +1,28 @@
 
 /**
- * Write a description of class BloodSplatter here.
+ * Represents a visual blood splatter effect on the game panel.
+ * Each instance stores its position and the image to display.
  *
  * @author Julius Gauldie
- * @version 07/08/25
+ * @version 14/08/25
  */
 import javax.swing.*;
 
-public class BloodSplatter
+public class BloodSplatter 
 {
-    // instance variables 
-    public int x, y;
+    // X and Y position of the blood splatter on the game panel
+    public float x, y;
+
+    // Image representing the blood splatter
     public ImageIcon bloodSplatter = new ImageIcon("resources/assets/cellResidue.png");
 
     /**
-     * Constructor for objects of class BloodSplatter
+     * Constructor for BloodSplatter.
+     *
+     * @param xLocation X-coordinate for blood splatter
+     * @param yLocation Y-coordinate for blood splatter
      */
-    public BloodSplatter(int xLocation, int yLocation)
-    {
+    public BloodSplatter(float xLocation, float yLocation) {
         this.x = xLocation;
         this.y = yLocation;
     }

@@ -1,58 +1,77 @@
 
 /**
- * Manages panel player sees
- *
- * @author Julius Gauldie
- * @version 11/08/25
+ * Manages which panel the player sees in the JFrame.
+ * 
+ * Author: Julius Gauldie
+ * Version: 14/08/25
  */
 import javax.swing.*;
-public class PanelManager
+
+public class PanelManager 
 {
-    public JFrame frame;
-    private MainMenuPanel mainMenuPanel;
-    private LevelSelectionPanel levelSelectionPanel;
-    private GameScreenPanel gamePanel;
-    
+    // Instance variables
+    private JFrame frame; // Main game window
+    private MainMenuPanel mainMenuPanel; // Start menu panel
+    private LevelSelectionPanel levelSelectionPanel; // Level/difficulty selection panel
+    private GameScreenPanel gamePanel; // Main game panel
+
     /**
-     * Constructor for objects of class PanelManager
+     * Constructor for PanelManager.
+     * Initializes all panels.
+     * 
+     * @param frame The JFrame this manager controls.
      */
-    public PanelManager(JFrame frame) 
-    {
+    public PanelManager(JFrame frame) {
         this.frame = frame;
         mainMenuPanel = new MainMenuPanel(this);
         levelSelectionPanel = new LevelSelectionPanel(this);
         gamePanel = new GameScreenPanel(this);
     }
-    
-    public MainMenuPanel getStartMenu()
-    {
-        return this.mainMenuPanel;
+
+    /**
+     * Returns the start menu panel.
+     * 
+     * @return MainMenuPanel instance.
+     */
+    public MainMenuPanel getStartMenu() {
+        return mainMenuPanel;
     }
-    
-    public void showStartMenu()
-    {
+
+    /**
+     * Shows the start menu panel in the JFrame.
+     */
+    public void showStartMenu() {
         frame.setContentPane(mainMenuPanel);
-
         frame.revalidate();
+        frame.repaint();
     }
 
-    public void showDifficultySelection()
-    {
+    /**
+     * Shows the level selection panel and updates its high score.
+     */
+    public void showDifficultySelection() {
         levelSelectionPanel.updateHighScore();
-
         frame.setContentPane(levelSelectionPanel);
-
         frame.revalidate();
+        frame.repaint();
     }
-    
-    public void startGame(String gameSettings)
-    {
+
+    /**
+     * Starts a new game on the game panel.
+     * 
+     * @param gameSettings String "level,difficulty".
+     */
+    public void startGame(String gameSettings) {
         frame.setContentPane(gamePanel);
 
-        String values[] = gameSettings.split(","); // Values[0] = Level Index (1 - 3), Values[1] = Difficulty Index (1 - 3)
-        
-        gamePanel.newGame(Integer.valueOf(values[0]));
-        
+        // Parse level and difficulty
+        String[] values = gameSettings.split(","); // values[0] = Level Index, values[1] = Difficulty Index
+        int levelIndex = Integer.parseInt(values[0]);
+        float difficultyIndex = Float.parseFloat(values[1]);
+
+        gamePanel.newGame(levelIndex, difficultyIndex);
+
         frame.revalidate();
+        frame.repaint();
     }
 }

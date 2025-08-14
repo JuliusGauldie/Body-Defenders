@@ -1,66 +1,71 @@
 
 /**
- * Panel showing main game
- *
+ * Represents an enemy that moves along a path in the tower defense game.
+ * Each enemy has health, speed, armor, damage
+ * 
  * @author Julius Gauldie
- * @version 10/08/25
+ * @version 14/08/25
  */
 import java.util.*;
 import java.awt.Point;
 import javax.swing.ImageIcon;
 
-public class Enemy
+public class Enemy 
 {
-    public int xLocation, yLocation;
-    public double xPos, yPos;
+    // Position
+    public float xLocation, yLocation;
+
+    // Tracks current waypoint in the path
     public int currentWaypoint = 0;
-    private java.util.List<Point> path;
 
-    private float speed = 1;
-    private float startingHealth;
-    private float currentHealth;
-    private int damage;
-    private int armor;
+    // Path the enemy follows
+    private List<Point> path;
 
-    private int enemyType;
+    // Enemy stats
+    private float speed = 1; // Movement speed
+    private float startingHealth; // Max health
+    private float currentHealth; // Current health
+    private float damage; // Damage to the player if enemy reaches end
+    private int armor; // Reduces damage taken
+    private int enemyType; // Enemy type identifier
 
-    // Time
-    private long lastSlowedTime = System.currentTimeMillis() - 3000; // 10 Seconds before spawn
-    private long lastWeakenedTime = System.currentTimeMillis() - 4000; // 10 Seconds before spawn
-    private long lastTunnelTime = System.currentTimeMillis() - TUNNEL_CYCLE_MS; // 10 Seconds before spawn
-    private long lastParasiteTime = System.currentTimeMillis() - PARASITE_CYCLE_MS;
+    // Timing for status effects and abilities
+    private long lastSlowedTime = System.currentTimeMillis() - 3000; // 4s slow timer
+    private long lastWeakenedTime = System.currentTimeMillis() - 4000; // Weakness timer
+    private long lastTunnelTime = System.currentTimeMillis() - TUNNEL_CYCLE_MS; // Tunnel timer
+    private long lastParasiteTime = System.currentTimeMillis() - PARASITE_CYCLE_MS; // Parasite spawn timer
 
-    // Tunnel - Enemy type 3
-    private static final long TUNNEL_CYCLE_MS = 5000; // 5 seconds
-    private static final long TUNNEL_DURATION_MS = 1500; // 1.5 second
+    // Constants for abilities
+    private static final long TUNNEL_CYCLE_MS = 5000; // Tunnel cycle: 5s
+    private static final long TUNNEL_DURATION_MS = 1500; // Tunnel active duration: 1.5s
+    private static final long PARASITE_CYCLE_MS = 8000; // Parasite spawn cycle: 8s
 
-    // Parasite spawn - Enemy type 5
-    private static final long PARASITE_CYCLE_MS = 8000; // 8 seconds
-
-    // Weakness
+    // Weakness duration in milliseconds
     private float currentWeaknessTime = 3000f;
 
-    boolean isAlive() { return currentHealth > 0; }
-    
-    boolean madeToEnd() { return currentWaypoint >= path.size(); }
-
-    boolean isSlowed() { return System.currentTimeMillis() - lastSlowedTime <= 4000f; } // 4 Seconds of slowing
-
-    boolean isWeakened() { return System.currentTimeMillis() - lastWeakenedTime <= currentWeaknessTime; } // 3 Seconds of weakness
-
-    boolean above80PercentHealth() { return currentHealth > (0.8 * startingHealth); }
-
-    // Images
+    // Enemy image
     ImageIcon image;
 
+    // For tower ability
+    private Tower killedByTower;
+
     /**
-     * Constructor for objects of class Enemies
+     * Constructor for Enemy.
+     * Initializes the enemy with given stats and starting position.
+     * 
+     * @param path               Path for the enemy to follow
+     * @param EnemyImageFileName Image file for the enemy
+     * @param enemyType          Type of the enemy (affects abilities)
+     * @param health             Starting health
+     * @param speed              Movement speed
+     * @param damage             Damage to player if it reaches the end
+     * @param armor              Reduces damage taken
      */
-    public Enemy(List<Point> path, String EnemyImageFileName, int enemyType, float health, float speed, int damage, int armor)
-    {
+    public Enemy(List<Point> path, String EnemyImageFileName, int enemyType, float health, float speed, float damage,
+            int armor) {
         this.enemyType = enemyType;
         this.startingHealth = health;
-        currentHealth = startingHealth;
+        this.currentHealth = startingHealth;
         this.speed = speed;
         this.path = path;
         this.damage = damage;
@@ -68,112 +73,137 @@ public class Enemy
 
         this.image = new ImageIcon(EnemyImageFileName);
 
-        this.xPos = path.get(0).x;
-        this.yPos = path.get(0).y;
-        this.xLocation = (int)Math.round(xPos);
-        this.yLocation = (int)Math.round(yPos);
+        // Set starting position at first waypoint
+        this.xLocation = path.get(0).x;
+        this.yLocation = path.get(0).y;
     }
 
-    public void update() 
-    {
-        if (currentWaypoint >= path.size()) return;
+    /**
+     * Updates enemy position along the path.
+     * Accounts for slow effects.
+     */
+    public void update() {
+        if (currentWaypoint >= path.size())
+            return; // Already at the end
 
         Point target = path.get(currentWaypoint);
 
-        double dx = target.x - xPos;
-        double dy = target.y - yPos;
+        double dx = target.x - xLocation;
+        double dy = target.y - yLocation;
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < speed) 
-        {
-            // Snap to waypoint and go to next
-            xPos = target.x;
-            yPos = target.y;
+        if (distance < speed) {
+            // Snap to waypoint and move to next
+            xLocation = target.x;
+            yLocation = target.y;
             currentWaypoint++;
-        }
-        else 
-        {
+        } else {
             // Move toward the target
-            xPos += dx / distance * (!isSlowed() ? speed : speed * 0.8f);
-            yPos += dy / distance * (!isSlowed() ? speed : speed * 0.8f);
+            float appliedSpeed = isSlowed() ? speed * 0.8f : speed;
+            xLocation += dx / distance * appliedSpeed;
+            yLocation += dy / distance * appliedSpeed;
         }
-
-        // Update locations in ints
-        xLocation = (int)Math.round(xPos);
-        yLocation = (int)Math.round(yPos);
     }
 
-    public void hit(float damage)
-    {
+    /**
+     * Applies damage to the enemy, accounting for armor and weakness.
+     * 
+     * @param damage Amount of damage being dealt
+     */
+    public void hit(float damage, Tower tower) {
         float damageDealt = damage;
 
+        // Increase damage if enemy is weakened
         if (isWeakened())
             damageDealt *= 1.2f;
 
-        damageDealt -= armor; // Damage done is damage - enemy armor, so 15 damage against enemy with 5 armor does 10 damage
+        damageDealt -= armor; // Armor reduces damage
 
-        if (damageDealt < 0)
+        if (damageDealt < 0) // Check damage on enemy is never negative
             damageDealt = 0;
 
-        currentHealth -= damageDealt; // Do damage
+        currentHealth -= damageDealt;
+
+        if (currentHealth <= 0)
+            killedByTower = tower;
     }
 
-    public int enemyType()
-    {
+    /** Getters and state checks **/
+
+    public boolean isAlive() {
+        return currentHealth > 0;
+    }
+
+    public boolean madeToEnd() {
+        return currentWaypoint >= path.size();
+    }
+
+    public boolean isSlowed() {
+        return System.currentTimeMillis() - lastSlowedTime <= 4000f;
+    }
+
+    public boolean isWeakened() {
+        return System.currentTimeMillis() - lastWeakenedTime <= currentWeaknessTime;
+    }
+
+    public boolean above80PercentHealth() {
+        return currentHealth > (0.8 * startingHealth);
+    }
+
+    public int enemyType() {
         return enemyType;
     }
 
-    public int getDamage()
-    {
+    public float getDamage() {
         return damage;
     }
 
-    public float getHealth()
-    {        
+    public float getHealth() {
         return currentHealth;
     }
 
-    public float getStartingHealth()
-    {
+    public float getStartingHealth() {
         return startingHealth;
     }
 
-    public void slowEnemy()
-    {
+    public void slowEnemy() {
         lastSlowedTime = System.currentTimeMillis();
     }
 
-    public void weakenEnemy(float weakenTime)
-    {
+    public void weakenEnemy(float weakenTime) {
         currentWeaknessTime = weakenTime;
-
         lastWeakenedTime = System.currentTimeMillis();
     }
 
-     // Returns true if this enemy is currently tunneled (untargetable for 1s every 5s)
-    public boolean isTunneled() 
-    {
-        if (enemyType != 3) 
+    /**
+     * Returns true if enemy type 3 is currently tunneled
+     */
+    public boolean isTunneled() {
+        if (enemyType != 3)
             return false;
-        
+
         long now = System.currentTimeMillis();
         long cycle = (now - lastTunnelTime) % TUNNEL_CYCLE_MS;
-
         return cycle < TUNNEL_DURATION_MS;
     }
 
-    public boolean parasiteSpawnable() 
-    {
+    /**
+     * Returns true if enemy type 5 can spawn parasites
+     */
+    public boolean parasiteSpawnable() {
         if (enemyType != 5)
             return false;
 
         long now = System.currentTimeMillis();
-
-        // Only true for the first tick of the 8s cycle
         return (now - lastParasiteTime) >= PARASITE_CYCLE_MS;
     }
 
     public void resetParasiteSpawnTimer() {
         lastParasiteTime = System.currentTimeMillis();
+    }
+
+    public Tower getKilledByTower()
+    {
+        return killedByTower;
     }
 }

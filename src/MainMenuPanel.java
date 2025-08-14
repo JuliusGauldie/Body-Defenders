@@ -1,28 +1,37 @@
 
 /**
- * Panel showing start menu on startup
- *
+ * Main menu panel displayed at startup.
+ * 
+ * Shows the game title, credits, and options to 
+ * start the game or quit.
+ * 
  * @author Julius Gauldie
- * @version 11/08/25
+ * @version 14/08/25
  */
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class MainMenuPanel extends JPanel {
+public class MainMenuPanel extends JPanel 
+{
+    // Constants
+    private static final int CANVAS_WIDTH = 800; // Width of the panel
+    private static final int CANVAS_HEIGHT = 600; // Height of the panel
 
-    public int CANVAS_WIDTH = 800;
-    public int CANVAS_HEIGHT = 600;
-
-    public MainMenuPanel(PanelManager manager) 
-    {
+    /**
+     * Constructor - sets up the main menu 
+     * 
+     * @param manager The PanelManager to switch between screens.
+     */
+    public MainMenuPanel(PanelManager manager) {
+        // Use vertical layout
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
-        // Background color (light medical green-blue)
+        // Set background color 
         setBackground(new Color(180, 235, 220));
 
-        // Add padding around everything
+        // Add padding around the panel
         setBorder(new EmptyBorder(40, 40, 40, 40));
 
         // Title
@@ -30,7 +39,7 @@ public class MainMenuPanel extends JPanel {
         title.setFont(new Font("Arial", Font.BOLD, 48));
         title.setForeground(new Color(20, 60, 50));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(Box.createVerticalStrut(50));
+        add(Box.createVerticalStrut(50)); // Space above
         add(title);
 
         // Credits
@@ -38,10 +47,10 @@ public class MainMenuPanel extends JPanel {
         credits.setFont(new Font("Arial", Font.ITALIC, 18));
         credits.setForeground(new Color(50, 90, 80));
         credits.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(Box.createVerticalStrut(10));
+        add(Box.createVerticalStrut(10)); // Small gap
         add(credits);
 
-        add(Box.createVerticalStrut(60));
+        add(Box.createVerticalStrut(60)); // Space before buttons
 
         // Start button
         JButton startButton = new JButton("Start Game");
@@ -49,7 +58,7 @@ public class MainMenuPanel extends JPanel {
         startButton.addActionListener(e -> manager.showDifficultySelection());
         add(startButton);
 
-        add(Box.createVerticalStrut(20));
+        add(Box.createVerticalStrut(20)); // Gap between buttons
 
         // Quit button
         JButton exitButton = new JButton("Quit Game");
@@ -60,8 +69,12 @@ public class MainMenuPanel extends JPanel {
         add(Box.createVerticalGlue());
     }
 
-    private void styleButton(JButton button) 
-    {
+    /**
+     * Styles a JButton with consistent formatting.
+     * 
+     * @param button The button to style.
+     */
+    private void styleButton(JButton button) {
         button.setFont(new Font("Arial", Font.BOLD, 24));
         button.setBackground(new Color(100, 200, 180));
         button.setForeground(Color.WHITE);

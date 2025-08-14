@@ -1,8 +1,10 @@
+
 /**
- * Write a description of class Main here.
- *
+ * Represents the main gameplay panel for the tower defense game.
+ * Handles updating and rendering enemies, towers, projectiles, waves, menus, and player interactions.
+ * 
  * @author Julius Gauldie
- * @version 11/08/25
+ * @version 14/08/25
  */
 import java.awt.*;
 import java.awt.event.*;
@@ -12,80 +14,71 @@ import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import java.util.*;
-import java.util.List;
 
-public class GameplayPanel extends JPanel implements MouseListener, MouseMotionListener
+public class GameplayPanel extends JPanel implements MouseListener, MouseMotionListener 
 {
-    // Size
-    public int CANVAS_WIDTH = 800; //Game Board widht/height
-    public int CANVAS_HEIGHT = 520;
+    // Canvas size
+    public int CANVAS_WIDTH = 800; // Game board width
+    public int CANVAS_HEIGHT = 520; // Game board height
 
     // Images
     private static BufferedImage mapImage;
     private static BufferedImage buildTowerMenuImage;
     private static BufferedImage upgradeTowerMenuImage;
-
-    // Images
     private String mapImageName = "resources/assets/map";
 
-    // Try to assign images
+    // Load static menu images
     static {
-        try 
-        {
+        try {
             buildTowerMenuImage = ImageIO.read(new File("resources/assets/buildTowerMenu.png"));
             upgradeTowerMenuImage = ImageIO.read(new File("resources/assets/UpgradeTowerMenu.png"));
-        } 
-        catch (IOException e) {e.printStackTrace();}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Arrays
-    public ArrayList<Enemy> enemies = new ArrayList<>();
-    ArrayList<Tower> towers = new ArrayList<>();
-    ArrayList<Projectile> projectiles = new ArrayList<>();
-    ArrayList<MenuButton> activeMenuButtons = new ArrayList<>();
-    ArrayList<BloodSplatter> bloodSplatter = new ArrayList<>();
+    // Arraylists
+    public ArrayList<Enemy> enemies = new ArrayList<>(); // Holds enemies
+    private ArrayList<Tower> towers = new ArrayList<>(); // Holds towers
+    public ArrayList<Projectile> projectiles = new ArrayList<>(); // Holds projectiles
+    private ArrayList<MenuButton> activeMenuButtons = new ArrayList<>(); // Holds buttons
+    private ArrayList<BloodSplatter> bloodSplatter = new ArrayList<>(); // Holds bloodsplatters
 
-    // Point arrays
+    // Path and tower locations
     ArrayList<Point> path = new ArrayList<>();
     ArrayList<Point> places = new ArrayList<>();
 
-    // Buttons
+    // Tower/menu selection
     MenuButton hoveredButton = null;
-
-    // Towers
     private Tower selectedTower = null;
     private WaveInfo currentWave = null;
-
-    private GameLayerPanel panel;
-
-    // JLabel
-    JLabel infoLabel;
-
-    // Menus
-    int x, y, radius;
+    MenuButton returnButton;
+    int x, y, radius; // Temporary variables for circular buttons
     Runnable onClick;
 
-    // Timer
+    // Game control
+    private GameLayerPanel panel;
+    JLabel infoLabel; // Optional UI info
     java.util.Timer timer;
-
-    // Dificulty
-    private float difficultyLevel = 1; // 0.5 - Easy, 1 - Normal, 2 - Hard
-
-    StaticVariables sVariables = new StaticVariables();
-    GameManager gameManager = new GameManager();
-    private java.util.Timer enemySpawnTimer = null;
-
+    java.util.Timer enemySpawnTimer = null;
     private boolean spawningWave = false;
+    private boolean lastWaveSpawned = false;
 
-    // Score
+    // Difficulty & score
+    private float difficultyLevel = 1; // 0.5 = Easy, 1 = Normal, 2 = Hard
     private int totalKills = 0;
     private int currentWaveNumber = 0;
 
+    // Classes
+    StaticVariables sVariables = new StaticVariables();
+    GameManager gameManager = new GameManager();
+
     /**
-     * Constructor for objects of class MainGamePanel
+     * Constructor for GameplayPanel.
+     * 
+     * @param panel Reference to parent GameLayerPanel
      */
-    public GameplayPanel(GameLayerPanel panel) 
-    { 
+    public GameplayPanel(GameLayerPanel panel) {
         this.panel = panel;
 
         super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -93,490 +86,503 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
         addMouseListener(this);
         addMouseMotionListener(this);
 
+        // Return button at top-right
+        returnButton = new MenuButton(705, 2, 70, 58, () -> {
+            timer.cancel();
+            if (enemySpawnTimer != null)
+                enemySpawnTimer.cancel();
+            spawningWave = false;
+            panel.returnToMenu();
+        });
+
         super.repaint();
     }
 
-    public void newGame(int levelIndex)
-    {
+    /**
+     * Starts a new game, resetting enemies, towers, and path
+     * 
+     * @param levelIndex      Index of the map to load
+     * @param difficultyIndex Difficulty multiplier
+     */
+    public void newGame(int levelIndex, float difficultyIndex) {
+        // Clear old variables
         totalKills = 0;
+        enemies.clear();
+        bloodSplatter.clear();
+        this.difficultyLevel = difficultyIndex;
+        selectedTower = null;
+        lastWaveSpawned = false;
 
+        // Reset towers
+        for (Tower t : towers)
+            if (t.isBuilt())
+                t.resetTower();
+
+        // Load map
         try {
             mapImage = ImageIO.read(new File(mapImageName + levelIndex + ".png"));
-        } 
-        catch (IOException e) { e.printStackTrace(); }
-
-        selectedTower = null;
-
-        for (Tower t : towers)
-        {
-            if (t.isBuilt())
-            {
-                t.resetTower();
-            }
+        } catch (IOException e) {
+            System.out.println("ERROR - Map image not found!");
         }
 
-        enemies.clear();
-
-        bloodSplatter.clear();
-
-        
-        // Add waypoints for enemies to follow
-        if (path.isEmpty())
-        {
+        // Enemy path points
+        if (path.isEmpty()) {
             for (int i = 0; i < sVariables.getAmountOfMapPoints(); i++)
-            {
-                int coord1 = sVariables.getCoord(i, 0);
-                int coord2 = sVariables.getCoord(i, 1);
-
-                path.add(new Point(coord1, coord2));
-            }
+                path.add(new Point(sVariables.getCoord(i, 0), sVariables.getCoord(i, 1)));
         }
 
-        // add building spots for towers
-        if (towers.isEmpty())
-        {
+        // Tower build locations
+        if (towers.isEmpty()) {
             for (int i = 0; i < sVariables.getAmountOfTowerSpots(); i++)
-            {
-                int coord1 = sVariables.getTCoord(i, 0);
-                int coord2 = sVariables.getTCoord(i, 1);
-
-                createTower(coord1, coord2);
-            }
+                createTower(sVariables.getTCoord(i, 0), sVariables.getTCoord(i, 1));
         }
 
-        // Works as update function (runs 60 times a second - 60fps)
+        // Start update loop (60 FPS)
         timer = new java.util.Timer();
-        timer.scheduleAtFixedRate(new UpdateTask(), 0, 1000 / 60); // Update at 60fps
+        timer.scheduleAtFixedRate(new UpdateTask(), 0, 1000 / 60);
     }
 
-    class UpdateTask extends TimerTask // Runs 60 times a second
-    {
-        public void run() 
-        {
-            // Update all built towers
-            for (Tower t : towers) {
-                if (t.isBuilt()) t.update();
-            }
+    /**
+     * Task run 60 times per second to update towers, projectiles, enemies, and
+     * handle deaths/abilities.
+     */
+    class UpdateTask extends TimerTask {
+        public void run() {
+            // Check if won
+            if (enemies.isEmpty() && lastWaveSpawned)
+                panel.gameOver(false);
 
-            // Update all projectiles and handle projectile effects
+
+            // Update towers
+            for (Tower t : towers)
+                if (t.isBuilt())
+                    t.update();
+
+            // Update projectiles and apply effects
             Iterator<Projectile> iter = projectiles.iterator();
-            while (iter.hasNext()) 
-            {
+            while (iter.hasNext()) {
                 Projectile p = iter.next();
                 p.update();
 
-                // Piercing projectile logic 
-                if (p.getProjectileIndex() == 3) 
-                {
-                    for (Enemy e : new ArrayList<>(enemies)) 
-                    {
-                        if (!e.isAlive() || p.hitEnemies.contains(e)) 
-                            break;
-
-                        float ex = e.xLocation - p.xLocation;
-                        float ey = e.yLocation - p.yLocation;
-                        float dist = (float)Math.sqrt(ex * ex + ey * ey);
-
-                        if (dist < 25f) 
-                        {
-                            float totalDamage = p.damage;
-
-                            if (p.parentTower.hasAbility2() && e.above80PercentHealth()) // Tower 3 - Ability 2: 50% Increase in damage if enemy above 80% health
-                                totalDamage *= 1.5f;
-
-                            if (e.enemyType() == 2) // Enemy 2 - Ability: Takes 50% less damage from area attacks
-                                totalDamage /= 2;
-                            
-                            e.hit(totalDamage);
-                            p.decreasePierceCount();
-
-                            p.hitEnemies.add(e);
-                            
-                            if (p.getPierceCount() <= 0) 
-                                p.active = false;
-                        }
-                    }
-                }
-                
-                if (!p.isActive()) 
-                {
-                    if (p.getProjectileIndex() == 1 && p.parentTower.hasAbility2() && !p.hasRebounded()) // Tower 1 - Ability 2: Hit extra enemy
-                    {
-                        Enemy closestEnemy = null;
-                        float smallestFoundDistance = Float.MAX_VALUE;
-
-                        for (Enemy e : enemies)
-                        {
-                            if (e.isAlive() && e != p.target)
-                            {
-                                float dx = e.xLocation - p.xLocation;
-                                float dy = e.yLocation - p.yLocation;
-                                float dist = dx * dx + dy * dy; 
-
-                                if (dist < smallestFoundDistance) 
-                                {
-                                    smallestFoundDistance = dist;
-                                    closestEnemy = e;
-                                }
-                            }
-                        }
-
-                        if (closestEnemy != null)
-                        {
-                            p.updateTarget(closestEnemy);
-                            break;
-                        }
-                    }
-                    else if (p.getProjectileIndex() == 2) // Area splash damage (projectileIndex 2)
-                    {
-                        int areaRadius = (p.parentTower.hasAbility2() ? 80 : 60); // Tower 2 - Ability 2: Increase area 
-
-                        for (Enemy e : new ArrayList<>(enemies)) 
-                        {
-                            float ex = e.xLocation - p.xLocation;
-                            float ey = e.yLocation - p.yLocation;
-                            float edist = (float)Math.sqrt(ex * ex + ey * ey);
-
-                            if (edist <= areaRadius) 
-                            {
-                                
-                                if (p.parentTower.hasAbility1()) // Tower 2 - Ability 1: Slow enemies
-                                    e.slowEnemy();
-
-                                e.hit(p.damage);
-                            }
-                        }
-                    }
-
-                    iter.remove();
-                }
+                handleProjectileLogic(p, iter);
             }
 
-            // Update all enemies and handle deaths/end
-            Iterator<Enemy> enemyIter = enemies.iterator();
+            // Update enemies and handle deaths/spawning
+            updateEnemies();
 
-            ArrayList<Enemy> enemiesToSpawn = new ArrayList<>();
-            while (enemyIter.hasNext()) 
-            {
-                Enemy e = enemyIter.next();
-                e.update();
-            
-                if (e.enemyType() == 5) // Enemy 5 - Ability: Spawn 2 parasites every 8 seconds
-                {
-                    if (e.parasiteSpawnable())
-                    {
-                        for (int i = 0; i < 2; i++) 
-                        {
-                            Enemy parasite = (new Enemy(path, sVariables.getEnemyImage(1), 1, sVariables.getEnemyHealth(1), sVariables.getEnemySpeed(1), sVariables.getEnemyDamage(1), sVariables.getEnemyArmor(1)));
-
-                            // Set position to match the Queen
-                            parasite.xPos = e.xPos + Math.cos((2 * Math.PI / 3) * i) * 20;
-                            parasite.yPos = e.yPos + Math.sin((2 * Math.PI / 3) * i) * 35;
-                            parasite.xLocation = (int) Math.round(parasite.xPos);
-                            parasite.yLocation = (int) Math.round(parasite.yPos);
-
-                            // Match the same waypoint so they continue along the same path
-                            parasite.currentWaypoint = e.currentWaypoint;
-
-                            enemiesToSpawn.add(parasite);
-                        }
-
-                        e.resetParasiteSpawnTimer();
-                    }
-                }
-
-                if (!e.isAlive()) 
-                {
-                    if (e.enemyType() == 4) // Enemy 4 - Ability: Spawn 2 smaller enemies on death
-                    {
-                        for (int i = 0; i < 2; i++) 
-                        {
-                            Enemy parasite = (new Enemy(path, sVariables.getEnemyImage(1), 1, sVariables.getEnemyHealth(1), sVariables.getEnemySpeed(1), sVariables.getEnemyDamage(1), sVariables.getEnemyArmor(1)));
-
-                            // Set position to match the initial enemy
-                            parasite.xPos = e.xPos + Math.cos((2 * Math.PI / 3) * i) * 10;
-                            parasite.yPos = e.yPos + Math.sin((2 * Math.PI / 3) * i) * 20;
-                            parasite.xLocation = (int) Math.round(parasite.xPos);
-                            parasite.yLocation = (int) Math.round(parasite.yPos);
-
-                            // Match the same waypoint so they continue along the same path
-                            parasite.currentWaypoint = e.currentWaypoint;
-
-                            enemiesToSpawn.add(parasite);
-                        }
-                    }
-
-                    bloodSplatter.add(new BloodSplatter(e.xLocation, e.yLocation));
-                    panel.gainMoney(sVariables.getEnemyReward(e.enemyType()));
-
-                    totalKills++;
-                    enemyIter.remove();
-                } 
-                else if (e.madeToEnd()) 
-                {
-                    panel.takeDamage(e.getDamage());
-                    enemyIter.remove();
-                }
-            }
-
-            for (Enemy e : enemiesToSpawn)
-            {
-                enemies.add(e);
-            }
-
-            enemiesToSpawn.clear();
-
-            // 4. Repaint the panel
+            // Repaint panel
             repaint();
         }
     }
 
-    public void spawnEnemy(int xLocation, int yLocation)
+    /**
+     * Handles the logic for a single projectile, including piercing, area damage,
+     * special tower abilities, and removing inactive projectiles.
+     * 
+     * @param p    The projectile being updated
+     * @param iter Iterator over the projectiles list for removal if needed
+     */
+    private void handleProjectileLogic(Projectile p, Iterator<Projectile> iter) 
     {
-        Enemy parasite = (new Enemy(path, sVariables.getEnemyImage(1), 1, sVariables.getEnemyHealth(1), sVariables.getEnemySpeed(1), sVariables.getEnemyDamage(1), sVariables.getEnemyArmor(1)));
+        // Handle piercing projectiles 
+        if (p.getPierceCount() > 0) 
+        {
+            for (Enemy e : new ArrayList<>(enemies)) 
+            {
+                if (!e.isAlive() || p.hitEnemies.contains(e))
+                    break;
 
-        parasite.xLocation = xLocation;
-        parasite.yLocation = yLocation;
+                float dx = e.xLocation - p.xLocation;
+                float dy = e.yLocation - p.yLocation;
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        enemies.add(parasite);
+                if (dist < 25f) {
+                    float totalDamage = p.damage;
+
+                    // Tower 3 - Ability 2: +50% damage if enemy above 80% health
+                    if (p.parentTower.hasAbility2() && e.above80PercentHealth())
+                        totalDamage *= 1.5f;
+
+                    e.hit(totalDamage, p.parentTower);
+                    p.decreasePierceCount();
+                    p.hitEnemies.add(e);
+
+                    if (p.getPierceCount() <= 0)
+                        p.active = false;
+                }
+            }
+        }
+
+        // Handle inactive projectiles
+        if (!p.isActive()) {
+            // Tower 1 - Ability 2: Hit extra enemy if reboundable
+            if (p.getProjectileIndex() == 1 && p.parentTower.hasAbility2() && !p.hasRebounded()) {
+                Enemy closestEnemy = null;
+                float smallestDistance = Float.MAX_VALUE;
+
+                for (Enemy e : new ArrayList<>(enemies)) {
+                    if (e.isAlive() && e != p.target) {
+                        float dx = e.xLocation - p.xLocation;
+                        float dy = e.yLocation - p.yLocation;
+                        float dist = dx * dx + dy * dy;
+
+                        if (dist < smallestDistance) {
+                            smallestDistance = dist;
+                            closestEnemy = e;
+                        }
+                    }
+                }
+
+                if (closestEnemy != null) {
+                    p.updateTarget(closestEnemy);
+                    return; // Do not remove projectile yet
+                }
+            }
+            // Tower 2 - Area splash damage (projectileIndex 2)
+            else if (p.getProjectileIndex() == 2) 
+            {
+                int areaRadius = p.parentTower.hasAbility2() ? 80 : 60;
+
+                for (Enemy e : new ArrayList<>(enemies)) 
+                {
+                    float dx = e.xLocation - p.xLocation;
+                    float dy = e.yLocation - p.yLocation;
+                    float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist <= areaRadius) {
+                        // Tower 2 - Ability 1: Slow enemies
+                        if (p.parentTower.hasAbility1())
+                            e.slowEnemy();
+
+                        // Enemy 2 - Ability: Takes 50% less damage from area attack
+                        e.hit(e.enemyType() == 2 ? p.damage / 2 : p.damage, p.parentTower);
+                    }
+                }
+            }
+
+            // Remove projectile from list
+            iter.remove();
+        }
     }
 
-    public void newWave(int currentWaveNumber) 
-    {
-        this.currentWaveNumber = currentWaveNumber;
+    /**
+     * Updates all enemies, handles death events, special enemy abilities,
+     * spawning parasites/splits, and reaching the end of the path.
+     */
+    private void updateEnemies() {
+        Iterator<Enemy> enemyIter = enemies.iterator();
+        ArrayList<Enemy> enemiesToSpawn = new ArrayList<>();
 
-        if (currentWaveNumber > 50) // Max 50 waves
-        {
-            panel.gameOver(false);
-            return;
+        while (enemyIter.hasNext()) {
+            Enemy e = enemyIter.next();
+            e.update();
+
+            // Enemy 5 - Queen: Spawn 2 parasites every 8 seconds
+            if (e.enemyType() == 5 && e.parasiteSpawnable()) {
+                for (int i = 0; i < 2; i++) {
+                    Enemy parasite = new Enemy(path, sVariables.getEnemyImage(1), 1,
+                            sVariables.getEnemyHealth(1), sVariables.getEnemySpeed(1),
+                            sVariables.getEnemyDamage(1), sVariables.getEnemyArmor(1));
+
+                    parasite.xLocation = e.xLocation + (float) Math.cos((2 * Math.PI / 3) * i) * 20;
+                    parasite.yLocation = e.yLocation + (float) Math.sin((2 * Math.PI / 3) * i) * 35;
+                    parasite.currentWaypoint = e.currentWaypoint;
+
+                    enemiesToSpawn.add(parasite);
+                }
+                e.resetParasiteSpawnTimer();
+            }
+
+            // If enemy is defeated
+            if (!e.isAlive()) {
+                // Enemy 4: Splits into 2 smaller enemies on death
+                if (e.enemyType() == 4) {
+                    for (int i = 0; i < 2; i++) {
+                        Enemy smallEnemy = new Enemy(path, sVariables.getEnemyImage(1), 1,
+                                sVariables.getEnemyHealth(1), sVariables.getEnemySpeed(1),
+                                sVariables.getEnemyDamage(1), sVariables.getEnemyArmor(1));
+
+                        smallEnemy.xLocation = e.xLocation + (float) Math.cos((2 * Math.PI / 3) * i) * 10;
+                        smallEnemy.yLocation = e.yLocation + (float) Math.sin((2 * Math.PI / 3) * i) * 20;
+                        smallEnemy.currentWaypoint = e.currentWaypoint;
+
+                        enemiesToSpawn.add(smallEnemy);
+                    }
+                }
+
+                // Add blood effect
+                bloodSplatter.add(new BloodSplatter(e.xLocation, e.yLocation));
+
+                // Reward money
+                if (e.getKilledByTower().checkAbility1BuffedTowers())
+                    panel.gainMoney(sVariables.getEnemyReward(e.enemyType()) * 2);
+                else
+                    panel.gainMoney(sVariables.getEnemyReward(e.enemyType()));
+                totalKills++;
+                enemyIter.remove();
+            }
+            // Enemy reached end of path
+            else if (e.madeToEnd()) {
+                panel.takeDamage(e.getDamage());
+                enemyIter.remove();
+            }
         }
+
+        // Add any newly spawned enemies from abilities
+        enemies.addAll(enemiesToSpawn);
+        enemiesToSpawn.clear();
+    }
+
+    /**
+     * Spawns a new wave of enemies.
+     * 
+     * @param currentWaveNumber Index of the current wave
+     */
+    public void newWave(int currentWaveNumber) {
+        if (currentWaveNumber > 15)
+            return;
+
+        this.currentWaveNumber = currentWaveNumber;
 
         bloodSplatter.clear();
 
         currentWave = gameManager.getWave(currentWaveNumber);
-
         spawningWave = true;
 
-        // Create a queue/list of enemy types to spawn
-        List<Integer> spawnQueue = new ArrayList<>();
-        for (int i = 0; i < currentWave.getEnemy1Count(); i++) spawnQueue.add(1);
-        for (int i = 0; i < currentWave.getEnemy2Count(); i++) spawnQueue.add(2);
-        for (int i = 0; i < currentWave.getEnemy3Count(); i++) spawnQueue.add(3);
-        for (int i = 0; i < currentWave.getEnemy4Count(); i++) spawnQueue.add(4);
-        for (int i = 0; i < currentWave.getEnemy5Count(); i++) spawnQueue.add(5);
+        // Create spawn queue
+        ArrayList<Integer> spawnQueue = new ArrayList<>();
+        for (int i = 0; i < currentWave.getEnemy1Count(); i++)
+            spawnQueue.add(1);
+        for (int i = 0; i < currentWave.getEnemy2Count(); i++)
+            spawnQueue.add(2);
+        for (int i = 0; i < currentWave.getEnemy3Count(); i++)
+            spawnQueue.add(3);
+        for (int i = 0; i < currentWave.getEnemy4Count(); i++)
+            spawnQueue.add(4);
+        for (int i = 0; i < currentWave.getEnemy5Count(); i++)
+            spawnQueue.add(5);
 
         Collections.shuffle(spawnQueue);
 
         enemySpawnTimer = new java.util.Timer();
         enemySpawnTimer.scheduleAtFixedRate(new TimerTask() {
-        int spawnIndex = 0;
+            int spawnIndex = 0;
 
-        @Override
-        public void run() 
-        {
-            if (spawnIndex < spawnQueue.size()) 
-            {
-                int enemyType = spawnQueue.get(spawnIndex);
+            @Override
+            public void run() {
+                if (spawnIndex < spawnQueue.size()) {
+                    int enemyType = spawnQueue.get(spawnIndex);
+                    enemies.add(new Enemy(path, sVariables.getEnemyImage(enemyType), enemyType,
+                            sVariables.getEnemyHealth(enemyType) * (difficultyLevel == 0.5 ? 0.8f : difficultyLevel == 1 ? 1f : 1.2f),
+                            sVariables.getEnemySpeed(enemyType) * (difficultyLevel == 0.5 ? 0.8f : difficultyLevel == 1 ? 1f : 1.2f),
+                            sVariables.getEnemyDamage(enemyType) * (difficultyLevel == 0.5 ? 0.8f : difficultyLevel == 1 ? 1f : 1.2f),
+                            sVariables.getEnemyArmor(enemyType)));
 
-                // Spawn correct enemy type
-                enemies.add(new Enemy(path, sVariables.getEnemyImage(enemyType), enemyType, sVariables.getEnemyHealth(enemyType), sVariables.getEnemySpeed(enemyType), sVariables.getEnemyDamage(enemyType), sVariables.getEnemyArmor(enemyType )));
+                    spawnIndex++;
+                    repaint();
+                } else {
+                    spawningWave = false;
 
-                spawnIndex++;
-                repaint();
-            } 
-            else 
-            {
-                spawningWave = false;
-                enemySpawnTimer.cancel();
+                    if (currentWaveNumber >= 15)
+                        lastWaveSpawned = true;
+
+                    enemySpawnTimer.cancel();
+                }
             }
-        }
-        }, 0, 500); // spawn every 500ms)
+        }, 0, 500); // spawn every 500ms
     }
 
-    public int calculateScore()
-    {
-        int totalScore = 0;
+    /**
+     * Calculates the total score for the current game.
+     * Score is based on kills, waves, remaining health, money, and difficulty.
+     * 
+     * @return Total score
+     */
+    public int calculateScore() {
+        int totalScore = totalKills * 10 + currentWaveNumber * 250;
 
-        totalScore += (totalKills * 10);
-        totalScore += ((currentWaveNumber) * 250);
-
-        if (panel.getCurrentHealth() > 0) // Game Won
-        {
-            totalScore += (panel.getCurrentHealth() * 100);
-            totalScore += ((panel.getCurrentMoney() * 5));
+        if (panel.getCurrentHealth() > 0) {
+            totalScore += panel.getCurrentHealth() * 100;
+            totalScore += panel.getCurrentMoney() * 5;
         }
 
         totalScore *= difficultyLevel;
-
         return totalScore;
     }
 
-    public void mouseClicked(MouseEvent e)
-    {
-        // Get current cursor coordinates
+    // Mouse Events
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mousePressed(MouseEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    /**
+     * Handles mouse click events on towers, menu buttons, and return button.
+     */
+    public void mouseClicked(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
 
-        if (e.getButton() == MouseEvent.BUTTON1) // If left click
-        {
-            for (MenuButton b : activeMenuButtons)
-            {
-                if (b.isClicked(x, y))
-                {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            // Check if any menu button was clicked
+            for (MenuButton b : activeMenuButtons) {
+                if (b.isClicked(x, y)) {
                     b.onClick.run();
                     repaint();
                     return;
                 }
-            }    
+            }
 
-            for (Tower t : towers)
-            {
-                if (x > t.xLocation && x < t.xLocation + (t.initialTower.getIconWidth())) // If inside X of tower
-                {
-                    if (y > t.yLocation && y < t.yLocation + (t.initialTower.getIconHeight())) // If inside Y of tower
-                    {
-                        towerSelected(t);
+            // Check if return button was clicked
+            if (returnButton.isClicked(x, y)) {
+                returnButton.onClick.run();
+                return;
+            }
 
-                        return;
-                    }
+            // Check if a tower was clicked
+            for (Tower t : towers) {
+                if (x > t.xLocation && x < t.xLocation + t.initialTower.getIconWidth() &&
+                        y > t.yLocation && y < t.yLocation + t.initialTower.getIconHeight()) {
+                    towerSelected(t); // Select the tower
+                    return;
                 }
             }
         }
 
+        // If nothing was clicked, unselect tower
         unselectTower();
-
-        super.repaint();
+        repaint();
     }
 
-    public void mouseEntered(MouseEvent e)  {}
-
-    public void mousePressed (MouseEvent e) {}
-
-    public void mouseReleased (MouseEvent e) {}
-
-    public void mouseExited (MouseEvent e) {}
-
-    public void mouseMoved(MouseEvent e)
-    {
-
+    /**
+     * Handles mouse movement to detect hover over menu buttons.
+     */
+    public void mouseMoved(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
 
         MenuButton prevHovered = hoveredButton;
         hoveredButton = null;
-        for (MenuButton b : activeMenuButtons)
-        {
-            if (x > b.x && x < b.x + b.width && y > b.y && y < b.y + b.height)
-            {
+
+        // Check if hovering over any active menu buttons
+        for (MenuButton b : activeMenuButtons) {
+            if (x > b.x && x < b.x + b.width && y > b.y && y < b.y + b.height) {
                 hoveredButton = b;
                 break;
             }
         }
+
+        // Only repaint if hover state changed
         if (prevHovered != hoveredButton) {
             repaint();
         }
-
     }
 
-    public void mouseDragged(MouseEvent e) {}
-
-    public void paint (Graphics g)
-    {  
+    /**
+     * Paints the entire game panel
+     */
+    public void paint(Graphics g) {
         super.paint(g);
 
+        // Draw the map
         g.drawImage(mapImage, 0, 0, null);
 
-        for (BloodSplatter b : bloodSplatter)
-        {
-            b.bloodSplatter.paintIcon(this, g, b.x, b.y);
+        // Draw blood splatter effects
+        for (BloodSplatter b : bloodSplatter) {
+            b.bloodSplatter.paintIcon(this, g, (int) b.x, (int) b.y);
         }
 
-        if (selectedTower != null)
-        {
-            // Tower range
+        // Draw tower range overlay if a tower is selected
+        if (selectedTower != null) {
             g.setColor(new Color(160, 160, 160, 128));
-            g.fillOval((selectedTower.xLocation + selectedTower.initialTower.getIconWidth() / 2) - (selectedTower.getRange()), (selectedTower.yLocation + selectedTower.initialTower.getIconHeight() / 2) - (selectedTower.getRange()), selectedTower.getRange() * 2, selectedTower.getRange() * 2);
+            int range = selectedTower.getRange();
+            int centerX = selectedTower.xLocation + selectedTower.initialTower.getIconWidth() / 2;
+            int centerY = selectedTower.yLocation + selectedTower.initialTower.getIconHeight() / 2;
+            g.fillOval(centerX - range, centerY - range, range * 2, range * 2);
 
-            // Tower Selection
-            if (!selectedTower.isBuilt()) // If not selected yet
-            {
-                g.drawImage(
-                    buildTowerMenuImage,
-                    (selectedTower.xLocation + selectedTower.initialTower.getIconWidth() / 2) - buildTowerMenuImage.getWidth() / 2,
-                    (selectedTower.yLocation + selectedTower.initialTower.getIconHeight() / 2) - buildTowerMenuImage.getHeight() / 2,
-                    null
-                );
-            }
-            else if (selectedTower.isBuilt())
-            {
-                g.drawImage(
-                    upgradeTowerMenuImage,
-                    (selectedTower.xLocation + selectedTower.image.getIconWidth() / 2) - upgradeTowerMenuImage.getWidth() / 2,
-                    (selectedTower.yLocation + selectedTower.image.getIconHeight() / 2) - upgradeTowerMenuImage.getHeight() / 2,
-                    null
-                );
+            // Draw tower selection menu image
+            if (!selectedTower.isBuilt()) {
+                g.drawImage(buildTowerMenuImage,
+                        centerX - buildTowerMenuImage.getWidth() / 2,
+                        centerY - buildTowerMenuImage.getHeight() / 2,
+                        null);
+            } else {
+                g.drawImage(upgradeTowerMenuImage,
+                        centerX - upgradeTowerMenuImage.getWidth() / 2,
+                        centerY - upgradeTowerMenuImage.getHeight() / 2,
+                        null);
             }
         }
 
-        for (Projectile p : projectiles)
-        {
+        // Draw active projectiles
+        for (Projectile p : new ArrayList<>(projectiles)) {
             if (p.active)
                 p.image.paintIcon(this, g, p.xLocation, p.yLocation);
         }
 
-        for (Enemy e : enemies)
-        {   
-            if (e.isAlive()) 
-            {
-                if (!e.isTunneled())
-                    e.image.paintIcon(this, g, e.xLocation, e.yLocation);
+        // Draw enemies and their health bars
+        for (Enemy e : new ArrayList<>(enemies)) 
+        {
+            if (!e.isAlive())
+                continue;
 
-                // Draw health bar above enemy
-                int barWidth = 40; // total width of health bar
-                int barHeight = 6;
-                int barY = e.yLocation - 10; // 10 pixels above enemy
-                int barX = e.xLocation + e.image.getIconWidth() / 2 - barWidth / 2;
-                float healthPercent = Math.max(0f, Math.min(1f, e.getHealth() / e.getStartingHealth()));
-                int greenWidth = (int)(barWidth * healthPercent);
-                int greenX = barX + (barWidth - greenWidth) / 2;
+            if (!e.isTunneled())
+                e.image.paintIcon(this, g, (int) e.xLocation, (int) e.yLocation);
 
-                // Background Bar
-                g.setColor(Color.DARK_GRAY);
-                g.fillRect(barX, barY, barWidth, barHeight);
+            // Draw health bar above enemy
+            int barWidth = 40;
+            int barHeight = 6;
+            int barX = (int) e.xLocation + e.image.getIconWidth() / 2 - barWidth / 2;
+            int barY = (int) e.yLocation - 10;
+            float healthPercent = Math.max(0f, Math.min(1f, e.getHealth() / e.getStartingHealth()));
+            int greenWidth = (int) (barWidth * healthPercent);
+            int greenX = barX + (barWidth - greenWidth) / 2;
 
-                // Health
-                g.setColor(Color.GREEN);
-                g.fillRect(greenX, barY, greenWidth, barHeight);
+            g.setColor(Color.DARK_GRAY);
+            g.fillRect(barX, barY, barWidth, barHeight);
 
-                // Border
-                g.setColor(Color.BLACK);
-                g.drawRect(barX, barY, barWidth, barHeight);
-            }
+            g.setColor(Color.GREEN);
+            g.fillRect(greenX, barY, greenWidth, barHeight);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(barX, barY, barWidth, barHeight);
         }
 
-        for (Tower t : towers)
-        {
+        // Draw all towers
+        for (Tower t : towers) {
             if (!t.isBuilt())
                 t.initialTower.paintIcon(this, g, t.xLocation, t.yLocation);
             else
                 t.image.paintIcon(this, g, t.xLocation, t.yLocation);
         }
 
-        // TOOL TIP
+        // Draw tooltip for hovered menu button
         if (hoveredButton != null && selectedTower != null) {
+            // Figure out which button is hovered
             int buttonIndex = activeMenuButtons.indexOf(hoveredButton) + 1;
-            int width = 260;
-            int tooltipX, tooltipY;
-            tooltipY = hoveredButton.y;
 
-            if (!selectedTower.onRightSide())
-                tooltipX = hoveredButton.x + hoveredButton.width + 10;
-            else
-                tooltipX = hoveredButton.x - width - 10;
+            // Tooltip width & position
+            int tooltipWidth = 260;
+            int tooltipX, tooltipY = hoveredButton.y;
 
-            String[] lines;
-            if (!selectedTower.isBuilt()) // Show stats
-            {
+            // Decide if tooltip should appear to the left or right of the button
+            tooltipX = (!selectedTower.onRightSide() ? hoveredButton.x + hoveredButton.width + 10 : hoveredButton.x - tooltipWidth - 10);
+
+            String[] lines; // Lines of text to display in the tooltip
+
+            // --- SHOW TOOLTIP CONTENT ---
+            if (!selectedTower.isBuilt()) {
+                // If the tower is NOT built yet — show tower build info
                 String name = sVariables.getTowerName(buttonIndex);
                 int damage = (int) sVariables.getTowerDamage(buttonIndex);
                 int range = sVariables.getTowerRange(buttonIndex);
@@ -584,298 +590,308 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
                 String towerInfo = sVariables.getTowerAbility(buttonIndex);
 
                 lines = new String[] {
-                    name,
-                    damage + " attack damage",
-                    range + " attack range",
-                    String.format("Fires every %.1f sec", 1f / fireRate),
-                    towerInfo
+                        name,
+                        damage + " attack damage",
+                        range + " attack range",
+                        String.format("Fires every %.1f sec", 1f / fireRate),
+                        towerInfo
                 };
 
-                if (buttonIndex == 4) 
-                {
-                    lines[1] = "3 damages / second";
+                // Special rules for certain towers
+                if (buttonIndex == 4) {
+                    lines[1] = "3 damage / second";
                     lines[3] = "Constant fire";
                 }
-
-                if (buttonIndex == 5) 
-                {
+                if (buttonIndex == 5) {
                     lines[3] = "20% firerate increase";
                 }
-            } 
-            else // Show upgrades if tower built
-            {
-                if (buttonIndex == 1) // Tower Level Up
-                { 
+
+            } else {
+                // If the tower IS built — show upgrade / sell / ability info
+                if (buttonIndex == 1) {
+                    // --- UPGRADE TOWER ---
                     int nextLevel = selectedTower.getCurrentLevel() + 1;
-                    if (nextLevel <= 3) 
-                    {
-                        int upgradeCost = (nextLevel == 2 ? sVariables.getTowerCostUpgrade1(selectedTower.getTowerIndex()) : sVariables.getTowerCostUpgrade2(selectedTower.getTowerIndex()));
-                        float newDmg = (nextLevel == 2) ? sVariables.getTowerDamageUpgrade1(selectedTower.getTowerIndex()) : sVariables.getTowerDamageUpgrade2(selectedTower.getTowerIndex());
-                        int newRange = (nextLevel == 2) ? sVariables.getTowerRangeUpgrade1(selectedTower.getTowerIndex()) : sVariables.getTowerRangeUpgrade2(selectedTower.getTowerIndex());
-                        float newFR = (nextLevel == 2) ? sVariables.getTowerFirerateUpgrade1(selectedTower.getTowerIndex()) : sVariables.getTowerFirerateUpgrade2(selectedTower.getTowerIndex());
-                        lines = new String[] 
-                        {
-                            "Upgrade to Level " + nextLevel + " (" + upgradeCost + ")",
-                            "Damage: " + selectedTower.getDamage() + " -> " + newDmg,
-                            "Range: " + selectedTower.getRange() + " -> " + newRange,
-                            String.format("Fire Rate: %.2f -> %.2f", selectedTower.getFireRate(), newFR)
+
+                    if (nextLevel <= 3) {
+                        // Choose upgrade values based on next level
+                        int upgradeCost = (nextLevel == 2)
+                                ? sVariables.getTowerCostUpgrade1(selectedTower.getTowerIndex())
+                                : sVariables.getTowerCostUpgrade2(selectedTower.getTowerIndex());
+
+                        float newDamage = (nextLevel == 2)
+                                ? sVariables.getTowerDamageUpgrade1(selectedTower.getTowerIndex())
+                                : sVariables.getTowerDamageUpgrade2(selectedTower.getTowerIndex());
+
+                        int newRange = (nextLevel == 2)
+                                ? sVariables.getTowerRangeUpgrade1(selectedTower.getTowerIndex())
+                                : sVariables.getTowerRangeUpgrade2(selectedTower.getTowerIndex());
+
+                        float newFireRate = (nextLevel == 2)
+                                ? sVariables.getTowerFirerateUpgrade1(selectedTower.getTowerIndex())
+                                : sVariables.getTowerFirerateUpgrade2(selectedTower.getTowerIndex());
+
+                        lines = new String[] {
+                                "Upgrade to Level " + nextLevel + " (" + upgradeCost + ")",
+                                "Damage: " + selectedTower.getDamage() + " -> " + newDamage,
+                                "Range: " + selectedTower.getRange() + " -> " + newRange,
+                                String.format("Fire Rate: %.2f -> %.2f", selectedTower.getFireRate(), newFireRate)
                         };
+                    } else {
+                        lines = new String[] { "Max Level" };
                     }
-                     else 
-                        lines = new String[] {"Max Level"};
-                } 
-                else if (buttonIndex == 2) // Ability 2
-                { 
+
+                } else if (buttonIndex == 2) {
+                    // --- ABILITY 2 ---
                     String abilityInfo = sVariables.getAbility2Info(selectedTower.getTowerIndex());
                     String abilityDescription = sVariables.getAbility2Description(selectedTower.getTowerIndex());
                     int abilityCost = sVariables.getAbility2Cost(selectedTower.getTowerIndex());
 
-                    lines = new String[] 
-                    {
-                        abilityInfo,
-                        abilityDescription,
-                        "Cost: " + abilityCost
+                    lines = new String[] {
+                            abilityInfo,
+                            abilityDescription,
+                            "Cost: " + abilityCost
                     };
-                    
-                    if (selectedTower.hasAbility2())
+
+                    if (selectedTower.hasAbility2()) {
                         lines[2] = "Cost: ALREADY OWNED";
-                } 
-                else if (buttonIndex == 3) // Refund Tower
-                { 
-                    int refund = (int)(0.85 * selectedTower.getCost());
-                    lines = new String[] {"Refund Tower", "You will get: " + refund + " DNA"};
-                } 
-                else if (buttonIndex == 4) // Ability 1
-                { 
+                    }
+
+                } else if (buttonIndex == 3) {
+                    // --- REFUND TOWER ---
+                    int refundAmount = (int) (0.85 * selectedTower.getCost());
+                    lines = new String[] {
+                            "Refund Tower",
+                            "You will get: " + refundAmount + " DNA"
+                    };
+
+                } else if (buttonIndex == 4) {
+                    // --- ABILITY 1 ---
                     String abilityInfo = sVariables.getAbility1Info(selectedTower.getTowerIndex());
                     String abilityDescription = sVariables.getAbility1Description(selectedTower.getTowerIndex());
                     int abilityCost = sVariables.getAbility1Cost(selectedTower.getTowerIndex());
 
-                    lines = new String[] 
-                    {
-                        abilityInfo,
-                        abilityDescription,
-                        "Cost: " + abilityCost
+                    lines = new String[] {
+                            abilityInfo,
+                            abilityDescription,
+                            "Cost: " + abilityCost
                     };
-                                        
-                    if (selectedTower.hasAbility1())
+
+                    if (selectedTower.hasAbility1()) {
                         lines[2] = "Cost: ALREADY OWNED";
-                }
-                else 
-                {
-                    lines = new String[] {""};
+                    }
+
+                } else {
+                    // No valid option
+                    lines = new String[] { "" };
                 }
             }
 
-            int height = 20 + lines.length * 18;
+            // Calculate tooltip height based on number of lines
+            int tooltipHeight = 20 + lines.length * 18;
+
+            // Draw tooltip
             Graphics2D g2 = (Graphics2D) g.create();
 
             // Background
             g2.setColor(new Color(30, 30, 60, 220));
-            g2.fillRoundRect(tooltipX, tooltipY, width, height, 16, 16);
-            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight, 16, 16);
 
-            // Tower Name
+            // First line (title)
+            g2.setColor(Color.WHITE);
             g2.setFont(new Font("Bell MT", Font.BOLD, 17));
             g2.drawString(lines[0], tooltipX + 10, tooltipY + 25);
 
+            // Other lines
             g2.setFont(new Font("Calibri", Font.PLAIN, 13));
-            for (int i = 1; i < lines.length; i++) 
-            {
-                if (i == lines.length - 1 && !selectedTower.isBuilt()) 
+            for (int i = 1; i < lines.length; i++) {
+                if (i == lines.length - 1 && !selectedTower.isBuilt()) {
                     g2.setFont(new Font("Calibri", Font.PLAIN, 12));
-
+                }
                 g2.drawString(lines[i], tooltipX + 10, tooltipY + 25 + i * 16);
             }
-            
+
             g2.dispose();
         }
 
-        if (selectedTower != null && selectedTower.isBuilt())
-        {
-            g.setColor(Color.RED);
-            //for (MenuButton b : activeMenuButtons) 
-            //{
-                //g.drawRect(b.x, b.y, b.width, b.height);
-            //}
-        }
     }
 
-    private void towerSelected(Tower tower)
-    {
+    // Called when a tower is clicked/selected
+    private void towerSelected(Tower tower) {
         selectedTower = tower;
-
         panel.towerSelected();
 
         activeMenuButtons.clear();
+
+        // Calculate the tower's center point (used for menu positioning)
         int centerX = tower.xLocation + tower.initialTower.getIconWidth() / 2;
         int centerY = tower.yLocation + tower.initialTower.getIconHeight() / 2;
 
-        int radius = 45;  // distance from tower center to square center
-        int squareSize = 40; // size of each square button
-        if (!tower.isBuilt())
-        {
-            for (int i = 0; i < 5; i++) {
-                double angle = Math.toRadians(-90 + i * 72); // -90 to start at top, then every 72 degrees
+        int radius; // Distance from tower center to button center
+        int squareSize; // Size of each menu button
 
-                int x = (int)(centerX + Math.cos(angle) * radius) - squareSize / 2;
-                int y = (int)(centerY + Math.sin(angle) * radius) - squareSize / 2;
+        if (!tower.isBuilt()) {
+            // If tower is not built
+            radius = 45;
+            squareSize = 40;
+
+            for (int i = 0; i < 5; i++) {
+                double angle = Math.toRadians(-90 + i * 72); // Show 5 buttons
+
+                int x = (int) (centerX + Math.cos(angle) * radius) - squareSize / 2;
+                int y = (int) (centerY + Math.sin(angle) * radius) - squareSize / 2;
 
                 final int buttonIndex = i + 1;
 
-                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {buildTower(buttonIndex);}));
+                // Add button with buildTower action
+                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {
+                    buildTower(buttonIndex);
+                }));
             }
-        }
-        else
-        {
+        } else {
+            // If tower is built
             radius = 50;
             squareSize = 45;
 
             for (int i = 0; i < 4; i++) {
-                double angle = Math.toRadians(-90 + i * 90); // -90 to start at top, then every 90 degrees
+                double angle = Math.toRadians(-90 + i * 90); // Show 4 buttons
 
-                int x = (int)(centerX + Math.cos(angle) * radius) - squareSize / 2;
-                int y = (int)(centerY + Math.sin(angle) * radius) - squareSize / 2;
+                int x = (int) (centerX + Math.cos(angle) * radius) - squareSize / 2;
+                int y = (int) (centerY + Math.sin(angle) * radius) - squareSize / 2;
 
                 final int buttonIndex = i + 1;
 
-                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {upgradeTower(buttonIndex);}));
+                // Add button with upgradeTower action
+                activeMenuButtons.add(new MenuButton(x, y, squareSize, squareSize, () -> {
+                    upgradeTower(buttonIndex);
+                }));
             }
         }
     }
 
-    private void buildTower(int buttonIndex)
-    {   
-        if (selectedTower != null && !selectedTower.isBuilt())
-        {
-            if (panel.getCurrentMoney() >= sVariables.getTowerCost(buttonIndex))
-            {
-                selectedTower.setTowerStats(sVariables.getTowerDamage(buttonIndex), sVariables.getTowerRange(buttonIndex), sVariables.getTowerFirerate(buttonIndex), sVariables.getTowerImage(buttonIndex), sVariables.getTowerName(buttonIndex), sVariables.getTowerCost(buttonIndex), buttonIndex);
+    // If tower is built
+    private void buildTower(int buttonIndex) {
+        if (selectedTower != null && !selectedTower.isBuilt()) {
+            if (panel.getCurrentMoney() >= sVariables.getTowerCost(buttonIndex)) {
+                // Set tower stats from static variables
+                selectedTower.setTowerStats(
+                        sVariables.getTowerDamage(buttonIndex),
+                        sVariables.getTowerRange(buttonIndex),
+                        sVariables.getTowerFirerate(buttonIndex),
+                        sVariables.getTowerImage(buttonIndex),
+                        sVariables.getTowerName(buttonIndex),
+                        sVariables.getTowerCost(buttonIndex),
+                        buttonIndex);
 
                 selectedTower.built();
-
                 panel.spendMoney(sVariables.getTowerCost(buttonIndex));
-
                 panel.towerSelected();
 
-                if (buttonIndex == 5) // Adrenaline Tower
-                {
-                    for (Tower t : towers) 
-                    {
-                        if (selectedTower != t)
-                        {
-                            for (Tower buffTower : t.buffTowers)
-                            {
-                                if (buffTower == selectedTower) // If already buffed
+                // Adrenaline Pump Tower
+                if (buttonIndex == 5) {
+                    for (Tower t : towers) {
+                        if (selectedTower != t) {
+                            for (Tower buffTower : t.buffTowers) {
+                                if (buffTower == selectedTower) // Already buffed
                                     break;
                             }
 
                             float ex = t.xLocation - selectedTower.xLocation;
                             float ey = t.yLocation - selectedTower.yLocation;
-                            float edist = (float)Math.sqrt(ex * ex + ey * ey);
+                            float edist = (float) Math.sqrt(ex * ex + ey * ey);
 
-                            if (edist <= selectedTower.getRange()) 
-                            {
-                                t.receiveBuff(selectedTower); // Apply damage to enemies in area 
+                            if (edist <= selectedTower.getRange()) {
+                                t.receiveBuff(selectedTower);
                             }
                         }
-                    }             
+                    }
                 }
             }
         }
 
         unselectTower();
     }
-   
-    private void upgradeTower(int buttonIndex)
-    {
+
+    // Handles upgrading, selling, and ability purchases
+    private void upgradeTower(int buttonIndex) {
         int towerIndex = selectedTower.getTowerIndex();
-
         int towerLevel = selectedTower.getCurrentLevel();
-        int upgradeTowerCost = (towerLevel == 1 ? sVariables.getTowerCostUpgrade1(towerIndex) : sVariables.getTowerCostUpgrade2(towerIndex));
 
-        switch (buttonIndex)
-        {   
-            case 1: // Upgrading tower to next level
-                if (selectedTower != null && selectedTower.isBuilt() && towerLevel < 3)
-                {
-                    if (panel.getCurrentMoney() >= upgradeTowerCost)
-                    {
+        // Determine upgrade cost based on current tower level
+        int upgradeTowerCost = (towerLevel == 1)
+                ? sVariables.getTowerCostUpgrade1(towerIndex)
+                : sVariables.getTowerCostUpgrade2(towerIndex);
+
+        switch (buttonIndex) {
+            case 1: // Upgrade to next level
+                if (selectedTower != null && selectedTower.isBuilt() && towerLevel < 3) {
+                    if (panel.getCurrentMoney() >= upgradeTowerCost) {
                         panel.spendMoney(upgradeTowerCost);
 
-                        if (selectedTower.getCurrentLevel() == 1) // Upgrade to level 2
-                            selectedTower.upgradeTower(sVariables.getTowerDamageUpgrade1(towerIndex), sVariables.getTowerRangeUpgrade1(towerIndex), sVariables.getTowerFirerateUpgrade1(towerIndex));
-                        else if (selectedTower.getCurrentLevel() == 2) // Upgrade to level 3
-                            selectedTower.upgradeTower(sVariables.getTowerDamageUpgrade2(towerIndex), sVariables.getTowerRangeUpgrade2(towerIndex), sVariables.getTowerFirerateUpgrade2(towerIndex));    
+                        if (towerLevel == 1) {
+                            selectedTower.upgradeTower(
+                                    sVariables.getTowerDamageUpgrade1(towerIndex),
+                                    sVariables.getTowerRangeUpgrade1(towerIndex),
+                                    sVariables.getTowerFirerateUpgrade1(towerIndex));
+                        } else if (towerLevel == 2) {
+                            selectedTower.upgradeTower(
+                                    sVariables.getTowerDamageUpgrade2(towerIndex),
+                                    sVariables.getTowerRangeUpgrade2(towerIndex),
+                                    sVariables.getTowerFirerateUpgrade2(towerIndex));
+                        }
 
-                        unselectTower();    
+                        unselectTower();
                     }
                 }
-            
                 break;
 
-            case 2: // Ability 2
-                if (panel.getCurrentMoney() >= sVariables.getAbility2Cost(towerIndex) && !selectedTower.hasAbility2())
-                {
+            case 2: // Purchase Ability 2
+                if (panel.getCurrentMoney() >= sVariables.getAbility2Cost(towerIndex) && !selectedTower.hasAbility2()) {
                     selectedTower.getAbility2();
-
                     panel.spendMoney(sVariables.getAbility2Cost(towerIndex));
-
                     unselectTower();
                 }
-
                 break;
 
-            case 3: // Refund tower
-                if (selectedTower != null && selectedTower.isBuilt())
-                {
-                    if (towerIndex == 5)
-                    {
-                        for (Tower t : towers)
-                        {
-                            for (Tower buffTower : t.buffTowers)
-                            {
-                                if (selectedTower == buffTower) // If already buffed
-                                {
+            case 3: // Sell/refund tower
+                if (selectedTower != null && selectedTower.isBuilt()) {
+                    if (towerIndex == 5) { // Remove buffs if Adrenaline Tower
+                        for (Tower t : towers) {
+                            for (Tower buffTower : t.buffTowers) {
+                                if (selectedTower == buffTower) {
                                     t.removeBuff(selectedTower);
                                     break;
                                 }
-                            } 
+                            }
                         }
                     }
 
-                    panel.gainMoney((int) (0.85 * selectedTower.getCost()));
+                    panel.gainMoney((int) (0.85 * selectedTower.getCost())); // Refund 85%
                     selectedTower.resetTower();
-
                     unselectTower();
                 }
-
                 break;
 
-            case 4: // Ability 1
-                if (panel.getCurrentMoney() >= sVariables.getAbility1Cost(towerIndex) && !selectedTower.hasAbility1())
-                {
+            case 4: // Purchase Ability 1
+                if (panel.getCurrentMoney() >= sVariables.getAbility1Cost(towerIndex) && !selectedTower.hasAbility1()) {
                     selectedTower.getAbility1();
-
                     panel.spendMoney(sVariables.getAbility1Cost(towerIndex));
-
                     unselectTower();
                 }
-
                 break;
         }
     }
 
-    private void createTower(int xLocation, int yLocation)
-    {
+    // Creates a tower object at given location
+    private void createTower(int xLocation, int yLocation) {
         towers.add(new Tower(this, xLocation, yLocation));
     }
 
-    public Tower getSelectedTower()
-    {
+    // Returns the currently selected tower
+    public Tower getSelectedTower() {
         return selectedTower;
     }
 
+    // MenuButton constructor for circular menu buttons
     public void MenuButton(int x, int y, int radius, Runnable onClick) {
         this.x = x;
         this.y = y;
@@ -883,25 +899,42 @@ public class GameplayPanel extends JPanel implements MouseListener, MouseMotionL
         this.onClick = onClick;
     }
 
+    // Checks if a click is within the button's radius
     public boolean isClicked(int mx, int my) {
         return Math.hypot(mx - x, my - y) <= radius;
     }
 
-    private void unselectTower()
-    {
+    // Deselects current tower and clears menu buttons
+    private void unselectTower() {
         selectedTower = null;
         activeMenuButtons.clear();
         panel.towerSelected();
     }
 
-    public boolean isSpawningWave() 
-    {
+    // Returns whether a wave is currently spawning
+    public boolean isSpawningWave() {
         return spawningWave;
     }
 
-    public void stopUpdate()
-    {
+    // Stops all game timers
+    public void stopUpdate() {
         timer.cancel();
         enemySpawnTimer.cancel();
     }
+
+    // Returns total kills in the game
+    public int getTotalKills() {
+        return totalKills;
+    }
+
+    // Returns current wave number
+    public int getCurrentWave() {
+        return currentWaveNumber;
+    }
+
+    // Returns current difficulty level
+    public float getDifficultyLevel() {
+        return difficultyLevel;
+    }
+
 }

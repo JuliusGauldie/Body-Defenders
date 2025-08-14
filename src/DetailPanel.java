@@ -1,131 +1,153 @@
+
 /**
- * Write a description of class Main here.
- *
+ * DetailPanel is the user interface panel showing game stats and tower information.
+ * 
+ * This panel displays:
+ * - Current round/wave
+ * - Player money
+ * - Player health
+ * - Selected tower stats (name, damage, range, fire rate)
+ * - Button to start next wave
+ * 
  * @author Julius Gauldie
- * @version 10/08/25
+ * @version 14/08/25
  */
 import java.awt.*;
 import javax.swing.*;
-public class DetailPanel extends JPanel
+
+public class DetailPanel extends JPanel 
 {
-    // Size
-    public int CANVAS_WIDTH = 800; //Game Board widht/height
+    // Panel size
+    public int CANVAS_WIDTH = 800;
     public int CANVAS_HEIGHT = 80;
 
-    // LABELS
-    // Money
-    JLabel moneyLabel;
+    // Labels for display
+    private JLabel moneyLabel;
+    private JLabel healthLabel;
+    private JLabel towerNameLabel;
+    private JLabel damageLabel;
+    private JLabel rangeLabel;
+    private JLabel fireRateLabel;
+    private JLabel waveLabel;
 
-    // Health
-    JLabel healthLabel;
+    // Button to start a new wave
+    private JButton newWaveButton;
 
-    // Tower Stats
-    JLabel towerNameLabel;
-    JLabel damageLabel;
-    JLabel rangeLabel;
-    JLabel fireRateLabel;
-
-    // Wave Info
-    JLabel waveLabel;
+    // Tracks current wave
     private int currentWave = 1;
-    JButton newWaveButton;
 
-    GameLayerPanel main;
+    // Reference to the main game panel for interaction
+    private GameLayerPanel main;
 
     /**
-     * Constructor for objects of class DetailPanel
+     * Constructor for DetailPanel.
+     * Initializes all labels, buttons, and layout.
+     * 
+     * @param main Reference to the main GameLayerPanel for starting waves and
+     *             checking state
      */
-    public DetailPanel(GameLayerPanel main) 
-    {
-        setLayout(new FlowLayout(FlowLayout.LEFT));  
-
+    public DetailPanel(GameLayerPanel main) {
         this.main = main;
+        setLayout(new FlowLayout(FlowLayout.LEFT)); // Left-align components
+        setFocusable(false);
 
-        this.setFocusable(false);
-
-        // Wave
-        waveLabel = new JLabel("ROUND 1 OF 50");
+        // Wave label
+        waveLabel = new JLabel("ROUND 1 OF 15");
         add(waveLabel);
 
-        // Money
-        moneyLabel = new JLabel("Money: 300");
+        // Money label (starts with 300 DNA)
+        moneyLabel = new JLabel("DNA: " + main.getCurrentMoney());
         add(moneyLabel);
 
-        // Health
-        healthLabel = new JLabel("Health: 1000");
+        // Health label (starts at 1000)
+        healthLabel = new JLabel("Health: " + main.getCurrentHealth());
         add(healthLabel);
 
-        // Wave Button
+        // New wave button
         newWaveButton = new JButton("New Wave");
-        newWaveButton.addActionListener(e -> newWave());
+        newWaveButton.addActionListener(e -> newWave()); // Trigger newWave() on click
         add(newWaveButton);
 
-        // Tower Name
+        // Tower information labels (empty initially)
         towerNameLabel = new JLabel("");
-        super.add(towerNameLabel);
+        add(towerNameLabel);
 
-        // Damage
-        damageLabel = new JLabel();
+        damageLabel = new JLabel("");
         add(damageLabel);
 
-        // Range
-        rangeLabel = new JLabel();
+        rangeLabel = new JLabel("");
         add(rangeLabel);
 
-        // Firerate
-        fireRateLabel = new JLabel();
+        fireRateLabel = new JLabel("");
         add(fireRateLabel);
 
-        super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        // Set panel preferred size
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
     }
 
-    public void towerSelected(Tower tower)
-    {
+    /**
+     * Updates the detail panel to show stats of the selected tower.
+     * 
+     * @param tower The tower currently selected
+     */
+    public void towerSelected(Tower tower) {
         towerNameLabel.setText(tower.getName() + " ||");
         damageLabel.setText("DAMAGE: " + tower.getDamage());
         rangeLabel.setText("RANGE: " + tower.getRange());
         fireRateLabel.setText(String.format("FIRERATE: %.1f", tower.getFireRate()));
     }
 
-    public void towerUnSelected()
-    {
+    /**
+     * Clears tower info when no tower is selected.
+     */
+    public void towerUnSelected() {
         towerNameLabel.setText("");
         damageLabel.setText("");
         rangeLabel.setText("");
         fireRateLabel.setText("");
     }
 
-    public void setMoney(int money)
-    {
-        moneyLabel.setText("DNA: " + String.valueOf(money));
+    /**
+     * Updates the money label to show the current amount.
+     * 
+     * @param money Current player DNA/money
+     */
+    public void setMoney(int money) {
+        moneyLabel.setText("DNA: " + money);
     }
 
-    public void setHealth(int health)
-    {
+    /**
+     * Updates the health label to show current player health.
+     * Displays "DEAD!" if health reaches 0 or below.
+     * 
+     * @param health Current player health
+     */
+    public void setHealth(float health) {
         if (health > 0)
-            healthLabel.setText("Health: " + String.valueOf(health));
+            healthLabel.setText("Health: " + health);
         else
             healthLabel.setText("Health: DEAD!");
     }
 
-    public void newWave()
-    {
-        if (!main.spawningWave())
-        {
+    /**
+     * Starts a new wave if the game is not already spawning a wave.
+     */
+    public void newWave() {
+        if (!main.spawningWave()) {
             currentWave++;
-
-            waveLabel.setText("ROUND " + currentWave + " OF 50");
-
+            waveLabel.setText("ROUND " + currentWave + " OF 15");
             main.newWave(currentWave);
         }
     }
 
-    public void newGame()
-    {
+    /**
+     * Resets the panel for a new game.
+     */
+    public void newGame() {
         currentWave = 1;
-
-        waveLabel.setText("ROUND " + currentWave + " OF 50");
-        healthLabel.setText("Health: 1000");
-
+        waveLabel.setText("ROUND " + currentWave + " OF 15");
+        healthLabel.setText("Health: " + (int) main.getCurrentHealth());
+        moneyLabel.setText("DNA: " + (int) main.getCurrentMoney());
+        towerUnSelected(); // Clear tower info
     }
 }

@@ -1,8 +1,8 @@
-Pill Launcher,6,140,0.8,100,resources/assets/tower1.png,Fires pills at a steady pace|8,110,1,75|11,160,1.5,125|Double Dose,Fires 2 capsules per shot,150|Bouncy Pills,Pills bounce once hitting another enemy,175
-Bandage Mortar,10,120,0.6,120,resources/assets/tower2.png,Launches bandages that explode|14,160,1,100|20,210,1.3,150|Sticky Wrap,Slow enemies for 4 seconds when hit,175|Wide Wrap,Splash radius +30%,200
-Vaccine Injector,14,120,1,150,resources/assets/tower3.png,Shoots vaccines piercing up to 2 enemies|18,170,1.1,125|25,200,1.25,175|Overdose,Pierces through extra enemy,200|Hollow Point,Enemy takes 50% more damage if above 80% health,225
-Sanitizer Sprayer,0.3,140,30,180,resources/assets/tower4.png,Sprays disinfectant weakening enemies|0.5,180,30,130|0.8,250,30,140|Corrosive Mist,Enemies armor is halved while weakened,180|Alcohol Boost,Weakness effect lasts 2 seconds longer,200
-Adrenaline Injector,0,250,0,160,resources/assets/tower5.png,Boosts nearby towers attack speed|0,300,0,95|0,500,0,140|Shot of Courage,Buff also increases projectile pierce by +1 for affected towers,175|Overcharge,Buffed towers’ abilities recharge 20% faster,200
+Pill Launcher,6,120,0.9,100,resources/assets/tower1.png,Fires pills at a steady pace|8,130,1,120|11,150,1.2,160|Double Dose,Fires 2 capsules per shot,150|Bouncy Pills,Pills bounce once hitting another enemy,175
+Bandage Mortar,10,120,0.6,120,resources/assets/tower2.png,Launches bandages that explode|14,160,0.8,150|20,210,1,200|Sticky Wrap,Slow enemies for 4 seconds when hit,175|Wide Wrap,Splash radius +30%,200
+Vaccine Injector,14,120,1,150,resources/assets/tower3.png,Shoots vaccines piercing up to 2 enemies|18,170,1.1,160|25,200,1.3,200|Overdose,Pierces through extra enemy,200|Hollow Point,Enemy takes 50% more damage if above 80% health,225
+Sanitizer Sprayer,0.3,140,30,180,resources/assets/tower4.png,Sprays disinfectant weakening enemies|0.5,180,30,180|0.8,250,30,200|Corrosive Mist,Enemies armor is halved while weakened,180|Alcohol Boost,Weakness effect lasts 2 seconds longer,200
+Adrenaline Injector,0,250,0,160,resources/assets/tower5.png,Boosts nearby towers attack speed|0,300,0,150|0,500,0,200|Resource Boost,DNA for enemies defeated is doubled,180|Critical Surge,Towers have 10% chance for double damage,200
 
 // Initial Values|Upgrade 1|Upgrade 2|Ability 1|Ability 2
 // Initial Values: Name, Damage, Range, FireRate, Cost, Image, Info

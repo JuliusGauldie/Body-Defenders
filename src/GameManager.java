@@ -1,67 +1,68 @@
 
 /**
- * Panel showing main game
- *
+ * Manages the waves of enemies in the game.
+ * Generates all waves and provides access to individual wave information.
+ * 
  * @author Julius Gauldie
- * @version 03/08/25
+ * @version 14/08/25
  */
 import java.util.*;
 
 public class GameManager 
 {
-    private List<WaveInfo> waves = new ArrayList<>();
+    // Array containing all waves
+    private ArrayList<WaveInfo> waves = new ArrayList<>();
 
-    public GameManager() 
-    {
+    /**
+     * Constructor initializes the wave list by generating all waves
+     */
+    public GameManager() {
         generateWaves();
     }
 
-    private void generateWaves() 
-    {
-        for (int i = 0; i <= 50; i++)
-        {
-             // Early waves: simple enemies
-            if (i <= 5) 
-            {
-                waves.add(new WaveInfo(5 + i * 2, 0, 0, 0, 0));
-            }
-            // Introduce Shell Bacteria (tanky) after wave 5
-            else if (i <= 10) 
-            {
-                waves.add(new WaveInfo(8 + i * 2, 2 + i, 0, 0, 0));
-            }
-            // Introduce Toxin Worm after wave 10
-            else if (i <= 20) 
-            {
-                waves.add(new WaveInfo(10 + i * 2, 3 + i, 1 + i / 2, 0, 0));
-            }
-            // Introduce Mutation Swarm after wave 20
-            else if (i <= 30) 
-            {
-                waves.add(new WaveInfo(12 + i * 2, 5 + i, 3 + i / 2, 4 + i, 0));
-            }
-            // Late-game: high density & tanky enemies
-            else if (i <= 40) {
-                waves.add(new WaveInfo(15 + i * 2, 6 + i, 5 + i / 2, 5 + i, 0));
-            }
-            // Final 10 waves: bosses appear
-            else 
-            {
-                waves.add(new WaveInfo(18 + i * 2, 8 + i, 6 + i / 2, 6 + i, i / 5));
+    /**
+     * Generates 15 waves with increasing difficulty and variety of enemies
+     */
+    private void generateWaves() {
+        for (int i = 1; i <= 15; i++) {
+            if (i <= 3) {
+                // Early waves: Spike Virus only, small numbers
+                waves.add(new WaveInfo(5 + i * 3, 0, 0, 0, 0));
+            } else if (i <= 5) {
+                // Introduce Shell Bacteria gradually
+                waves.add(new WaveInfo(8 + i * 4, 2 + i, 0, 0, 0));
+            } else if (i <= 7) {
+                // Add Toxin Worm alongside Spike Virus and Shell Bacteria
+                waves.add(new WaveInfo(10 + i * 4, 3 + i, 1 + (i - 5), 0, 0));
+            } else if (i <= 10) {
+                // Introduce Mutation Swarm and mix enemies
+                waves.add(new WaveInfo(12 + i * 4, 5 + i, 3 + (i - 7), 4 + (i - 7), 0));
+            } else if (i == 11 || i == 12) {
+                // Mini-boss waves: Parasite Queen + strong minions
+                waves.add(new WaveInfo(20 + i * 4, 10 + i, 6 + (i - 10), 6 + (i - 10), i - 10));
+            } else if (i == 13 || i == 14) {
+                // Stronger mixed waves: more enemies and mutations
+                waves.add(new WaveInfo(25 + i * 4, 12 + i, 8 + (i - 12), 8 + (i - 12), (i - 12) * 2));
+            } else if (i == 15) {
+                // Final boss wave: maximum enemies + Parasite Queen boss
+                waves.add(new WaveInfo(35 + i * 4, 15 + i, 10 + (i - 14), 10 + (i - 14), 3));
             }
         }
     }
 
-    public WaveInfo getWave(int waveNumber)
-    {
-        if (waveNumber < 1 || waveNumber > waves.size()) {
-            throw new IndexOutOfBoundsException("Wave number out of range: " + waveNumber);
-        }
+    /**
+     * Returns the WaveInfo for a given wave number
+     * 
+     * @param waveNumber The wave number
+     */
+    public WaveInfo getWave(int waveNumber) {
         return waves.get(waveNumber - 1);
     }
 
-    public int getTotalWaves() 
-    {
+    /**
+     * Returns the total number of waves
+     */
+    public int getTotalWaves() {
         return waves.size();
     }
 }

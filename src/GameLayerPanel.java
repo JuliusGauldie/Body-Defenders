@@ -1,91 +1,105 @@
+
 /**
- * Panel showing main game
+ * Panel showing the main game board.
+ * Handles the game display and player stats
  *
  * @author Julius Gauldie
- * @version 10/08/25
+ * @version 14/08/25
  */
 import java.awt.*;
 import javax.swing.*;
-public class GameLayerPanel extends JPanel
+
+public class GameLayerPanel extends JPanel 
 {
-    // Size
-    public int CANVAS_WIDTH = 800; //Game Board widht/height
-    public int CANVAS_HEIGHT = 600;
+    // Canvas size
+    public int CANVAS_WIDTH = 800; // Game board width
+    public int CANVAS_HEIGHT = 600; // Game board height
 
-    // Pause Menu 
-    GameScreenPanel main;
+    // Reference to main game screen panelf
+    private GameScreenPanel main;
 
-    // Side Panels
-    private GameplayPanel mainGameP;
-    private DetailPanel detailP;
+    // Panels within the game layer
+    private GameplayPanel mainGameP; // The main game area
+    private DetailPanel detailP; // Bottom panel showing stats
 
-    // Charachter stats
-    private static int STARTING_HEALTH = 1000;
-    private int playerHealth = STARTING_HEALTH;
+    // Player health stats
+    private static final float STARTING_HEALTH = 200;
+    private float playerHealth = STARTING_HEALTH;
 
-    private static int STARTING_MONEY = 300;
+    // Player money stats
+    private static final int STARTING_MONEY = 300;
     private int money = STARTING_MONEY;
 
-    // Playing Game
+    // Game state
     private boolean playingGame = true;
-    boolean isPlaying() { return playingGame; }
+
+    // Returns true if the game is currently running
+    boolean isPlaying() {
+        return playingGame;
+    }
 
     /**
-     * Constructor for objects of class MainBoardPanel
+     * Constructor for GameLayerPanel
+     * 
+     * @param main The main game screen panel that manages menus and transitions
      */
-    public GameLayerPanel(GameScreenPanel main) 
-    {
+    public GameLayerPanel(GameScreenPanel main) {
         this.main = main;
 
+        // Initialize gameplay and detail panels
         mainGameP = new GameplayPanel(this);
         detailP = new DetailPanel(this);
 
+        // Set layout and add panels
         setLayout(new BorderLayout());
-
         add(mainGameP, BorderLayout.CENTER);
         add(detailP, BorderLayout.SOUTH);
 
-        super.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
-        super.revalidate();
-        super.repaint();
+        // Set panel size and refresh display
+        setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        revalidate();
+        repaint();
     }
 
-    public void takeDamage(int damage)
-    {
-        this.playerHealth -= damage;
-        
-        if (this.playerHealth <= 0)
+    /**
+     * Decreases player health by the specified amount.
+     * Calls gameOver if health drops to 0 or below.
+     */
+    public void takeDamage(float damage) {
+        playerHealth -= damage;
+
+        if (playerHealth <= 0)
             gameOver(true);
 
         detailP.setHealth(playerHealth);
     }
 
-    public int getCurrentHealth()
-    {
-        return this.playerHealth;
+    // Returns the player's current health
+    public float getCurrentHealth() {
+        return playerHealth;
     }
 
-    public int getCurrentMoney()
-    {
-        return this.money;
+    // Returns the player's current money
+    public int getCurrentMoney() {
+        return money;
     }
 
-    public void spendMoney(int spentMoney)
-    {
-        this.money -= spentMoney;
-
+    // Deducts money when a tower or upgrade is purchased
+    public void spendMoney(int spentMoney) {
+        money -= spentMoney;
         detailP.setMoney(money);
     }
 
-    public void gainMoney(int gainedMoney)
-    {
-        this.money += gainedMoney;
-
+    // Adds money when enemies are defeated
+    public void gainMoney(int gainedMoney) {
+        money += gainedMoney;
         detailP.setMoney(money);
     }
 
-    public void towerSelected()
-    {   
+    /**
+     * Updates the detail panel with information about the currently selected tower.
+     */
+    public void towerSelected() {
         Tower tower = mainGameP.getSelectedTower();
 
         if (tower != null && detailP != null && tower.isBuilt())
@@ -94,38 +108,59 @@ public class GameLayerPanel extends JPanel
             detailP.towerUnSelected();
     }
 
-    public void gameOver(boolean lostGame)
-    {
-        main.showGameOver(lostGame, mainGameP.calculateScore());
+    /**
+     * Ends the game and displays the Game Over screen.
+     * 
+     * @param lostGame True if the player lost
+     */
+    public void gameOver(boolean lostGame) {
+        main.showGameOver(
+                lostGame,
+                mainGameP.calculateScore(),
+                mainGameP.getTotalKills(),
+                mainGameP.getCurrentWave(),
+                playerHealth,
+                money,
+                mainGameP.getDifficultyLevel());
 
         mainGameP.stopUpdate();
-
         playingGame = false;
     }
 
-    public void newGame(int levelIndex)
-    {
+    /**
+     * Starts a new game with the given level and difficulty.
+     */
+    public void newGame(int levelIndex, float difficultyIndex) {
         playingGame = true;
 
+        // Reset player stats
         money = STARTING_MONEY;
-        detailP.setMoney(money);
+        playerHealth = STARTING_HEALTH * ((float) 1 / difficultyIndex);
 
-        // Set lives counter
-        playerHealth = STARTING_HEALTH;
-        
-        mainGameP.newGame(levelIndex);
+        // Update detail panel
+        detailP.setMoney(money);
+        detailP.setHealth(playerHealth);
         detailP.newGame();
 
+        // Start new gameplay
+        mainGameP.newGame(levelIndex, difficultyIndex);
+
+        // Update tower info
         towerSelected();
     }
 
-    public void newWave(int currentWave)
-    {
+    // Starts a new wave
+    public void newWave(int currentWave) {
         mainGameP.newWave(currentWave);
     }
 
-    public boolean spawningWave()
-    {
+    // Returns true if a wave is currently spawning
+    public boolean spawningWave() {
         return mainGameP.isSpawningWave();
+    }
+
+    // Returns to the main menu screen
+    public void returnToMenu() {
+        main.showStartMenu();
     }
 }

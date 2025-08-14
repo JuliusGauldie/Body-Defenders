@@ -1,33 +1,36 @@
 
 /**
- * Panel showing main game and game manager
+ * Panel showing the main game and acting as the game manager
+ * Handles layering between gameplay and game-over screen
  *
  * @author Julius Gauldie
- * @version 11/08/25
+ * @version 14/08/25
  */
 import java.awt.*;
 import javax.swing.*;
+
 public class GameScreenPanel extends JPanel 
 {
-    // Size
-    public int CANVAS_WIDTH = 800; //Game Board widht/height
-    public int CANVAS_HEIGHT = 600;
+    // Panel size
+    public static final int CANVAS_WIDTH = 800;
+    public static final int CANVAS_HEIGHT = 600;
 
-    // Pause Menu
+    // Panels
     private JLayeredPane layeredPane;
-    GameOverPanel gameOverPanel;
-    GameLayerPanel gamePanel;
+    private GameOverPanel gameOverPanel;
+    private GameLayerPanel gamePanel;
+    private PanelManager manager;
 
-    // Manager
-    PanelManager manager;
+    private int currentLevelIndex = 0; // Current level being played
 
-    private int currentLevelIndex = 0;
+    private float currentDifficultyIndex = 1; // Current difficulty multiplier
 
     /**
-     * Constructor for objects of class MainPanel
+     * Constructor — sets up the main gameplay and overlay panels
+     * 
+     * @param manager The main panel manager
      */
-    public GameScreenPanel(PanelManager manager) 
-    {
+    public GameScreenPanel(PanelManager manager) {
         this.manager = manager;
 
         this.setLayout(new CardLayout());
@@ -36,17 +39,17 @@ public class GameScreenPanel extends JPanel
         layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
-        // Create Game Panel
+        // Create main game panel
         gamePanel = new GameLayerPanel(this);
         gamePanel.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         layeredPane.add(gamePanel, JLayeredPane.DEFAULT_LAYER);
 
         // Create game over panel
         gameOverPanel = new GameOverPanel(this);
-        gameOverPanel.setBounds(40, 10, 700, 500); // Centered
+        gameOverPanel.setBounds(40, 10, 700, 500); // Slightly inset from edges
         gameOverPanel.setOpaque(true);
-        gameOverPanel.setVisible(false); // Initially hidden
-        layeredPane.add(gameOverPanel, JLayeredPane.PALETTE_LAYER); // On top
+        gameOverPanel.setVisible(false);
+        layeredPane.add(gameOverPanel, JLayeredPane.PALETTE_LAYER);
 
         super.add(layeredPane, "Main Panel");
 
@@ -55,41 +58,51 @@ public class GameScreenPanel extends JPanel
         super.repaint();
     }
 
-    public void showGameOver(boolean lostGame, int score)
-    {
-        gameOverPanel.updateLabel(lostGame, score);
-
+    /**
+     * Displays the game over screen with the player's results
+     */
+    public void showGameOver(boolean lostGame, int score, int totalKills, int wave, float healthLeft, int dnaLeft,
+            float difficultyLevel) {
+        gameOverPanel.updateLabel(lostGame, score, totalKills, wave, healthLeft, dnaLeft, difficultyLevel);
         gameOverPanel.setVisible(true);
-
         super.revalidate();
         super.repaint();
     }
 
-    public void hideGameOver()
-    {
+    /**
+     * Hides the game over screen
+     */
+    public void hideGameOver() {
         gameOverPanel.setVisible(false);
-
         super.revalidate();
         super.repaint();
     }
 
-    public void showStartMenu()
-    {
+    /**
+     * Switches to the start menu
+     */
+    public void showStartMenu() {
         gameOverPanel.setVisible(false);
         manager.showStartMenu();
     }
-    
-    public void newGame(int levelIndex)
-    {
-        gameOverPanel.setVisible(false);
-        
-        currentLevelIndex = levelIndex;
 
-        gamePanel.newGame(currentLevelIndex);
+    /**
+     * Starts a new game at the given level & difficulty
+     */
+    public void newGame(int levelIndex, float difficultyIndex) {
+        gameOverPanel.setVisible(false);
+        currentLevelIndex = levelIndex;
+        currentDifficultyIndex = difficultyIndex;
+        gamePanel.newGame(currentLevelIndex, difficultyIndex);
     }
 
-    public int getCurrentLevelIndex()
-    {
+    // Return the current level index
+    public int getCurrentLevelIndex() {
         return currentLevelIndex;
+    }
+
+    /// Return the current difficulty multiplier
+    public float getCurrentDifficultyIndex() {
+        return currentDifficultyIndex;
     }
 }
